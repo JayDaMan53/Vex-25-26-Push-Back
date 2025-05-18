@@ -1,4 +1,6 @@
 #include "main.h"
+#include "gif-pros/gifclass.hpp"
+#include "liblvgl\lvgl.h"
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -80,6 +82,24 @@ void initialize() {
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 }
 
+Gif* globalGif = nullptr;
+void renderGif() {
+  lv_obj_t* screen = lv_scr_act();
+  lv_coord_t screenW = lv_obj_get_width(screen);
+  lv_coord_t screenH = lv_obj_get_height(screen);
+
+  lv_obj_t* obj = lv_obj_create(screen);
+
+  lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, 0);
+  lv_obj_set_style_border_width(obj, 0, 0);  // remove any border
+
+  lv_obj_set_size(obj, screenW, screenH);
+  lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+
+  static Gif gif("/usd/fish/meme3.gif", obj);
+  globalGif = &gif;
+}
+
 /**
  * Runs while the robot is in the disabled state of Field Management System or
  * the VEX Competition Switch, following either autonomous or opcontrol. When
@@ -132,6 +152,10 @@ void autonomous() {
   You can do cool curved motions, but you have to give your robot the best chance
   to be consistent
   */
+
+  if (globalGif != nullptr) {
+    renderGif();
+  }
 
   ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 }
@@ -242,6 +266,10 @@ void ez_template_extras() {
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
+
+  if (globalGif != nullptr) {
+    renderGif();
+  }
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
