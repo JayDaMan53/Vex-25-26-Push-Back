@@ -279,10 +279,17 @@ void opcontrol() {
   int RedRangeMax = 20;
 
   bool tongueToggle = false;
+  bool hoodToggle = false;
+
+  bool forceFront = false; // used when we want to force the intake to go out the front for color sort
+  int forceFrontTimer = 0;
+  int forceFrontDuration = 1; // how long we want to force the intake out the front for color sort (in secsonds)
+
+  bool enableColorSort = true; // master toggle for color sort
 
   while (true) {
     // Gives you some extras to make EZ-Template ezier
-    ez_template_extras();
+    // ez_template_extras();
 
     chassis.opcontrol_tank();  // Tank control
     // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
@@ -290,33 +297,54 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
 
-    if (master.get_digital_new_press(DIGITAL_B)) {
+    if (master.get_digital_new_press(DIGITAL_B)) { // toggle tongue mech
       tongue.set_value(tongueToggle);
-      tongueToggle = !tongueToggle;
+      tongueToggle = !tongueToggle; // flip the toggle
     }
 
-    if (master.get_digital(DIGITAL_R1)) {
+    if (master.get_digital_new_press(DIGITAL_X)) { // toggle color sort
+      enableColorSort = !enableColorSort; // flip the toggle
+      ColorSensor.set_led_pwm(enableColorSort ? 100 : 0); // turn the color sensor led on or off based on the toggle
+      ColorSensor2.set_led_pwm(enableColorSort ? 100 : 0); // turn the color sensor led on or off based on the toggle
+      master.set_text(0, 0, enableColorSort ? "Color Sort: ON " : "Color Sort: OFF");
+    }
+
+    forceFrontTimer--; // decrement the timer
+    if (forceFrontTimer <= 0) { // if the timer is done
+      forceFront = false; // stop forcing the intake to go out the front
+      forceFrontTimer = 0; // make sure the timer is at 0
+    }
+
+    if (master.get_digital(DIGITAL_R1) && !forceFront) { // intake out the top
       intakeMain.move(127);
       intakeTop.move(127);
-    } else if (master.get_digital(DIGITAL_L1)) {
+    } else if (master.get_digital(DIGITAL_L1) || forceFront) { // intake out front
       intakeMain.move(127);
       intakeTop.move(-127);
-    } else if (master.get_digital(DIGITAL_R2)) {
+    } else if (master.get_digital(DIGITAL_R2)) { // out take through the bottom
       intakeMain.move(-127);
       intakeTop.move(0);
-    } else {
+    } else { // stop if no buttons are pressed
       intakeMain.move(0);
       intakeTop.move(0);
     }
 
-    if ((ColorSensor.get_hue() >= BlueRangeMin && ColorSensor.get_hue() <= BlueRangeMax) || (ColorSensor2.get_hue() >= BlueRangeMin && ColorSensor2.get_hue() <= BlueRangeMax)) { // if the color is blue
-      master.rumble(".-.");
-      printf("Blue Detected: %f\n", ColorSensor.get_hue());
+    // if the color is within the range of blue on either sensor then it's likely blue
+    if ((ColorSensor.get_hue() >= BlueRangeMin && ColorSensor.get_hue() <= BlueRangeMax) || (ColorSensor2.get_hue() >= BlueRangeMin && ColorSensor2.get_hue() <= BlueRangeMax) && enableColorSort) { // if the color is blue
+      // master.rumble(".-."); // debugging stuff
+      // printf("Blue Detected: %f\n", ColorSensor.get_hue());
+
+      forceFront = true; // we want to force the intake to go out the front for color sort
+      forceFrontTimer = forceFrontDuration * 1000 / ez::util::DELAY_TIME; // set the timer
     }
 
-    if ((ColorSensor.get_hue() >= RedRangeMin && ColorSensor.get_hue() <= RedRangeMax) || (ColorSensor2.get_hue() >= RedRangeMin && ColorSensor2.get_hue() <= RedRangeMax)) { // if the color is blue
-      master.rumble("-.-");
-      printf("Blue Detected: %f\n", ColorSensor.get_hue());
+    // if the color is within the range of red on either sensor then it's likely red
+    if ((ColorSensor.get_hue() >= RedRangeMin && ColorSensor.get_hue() <= RedRangeMax) || (ColorSensor2.get_hue() >= RedRangeMin && ColorSensor2.get_hue() <= RedRangeMax) && enableColorSort) { // if the color is red
+      // master.rumble("-.-"); // debugging stuff
+      // printf("Red Detected: %f\n", ColorSensor.get_hue());
+
+      forceFront = true; // we want to force the intake to go out the front for color sort
+      forceFrontTimer = forceFrontDuration * 1000 / ez::util::DELAY_TIME; // set the timer
     }
 
     // printf("not Detected: %f\n", ColorSensor.get_hue());
