@@ -1,5 +1,8 @@
 #include "main.h"
+#include <sys/_intsup.h>
 #include <cstdio>
+#include <string>
+#include "EZ-Template/sdcard.hpp"
 #include "pros/adi.hpp"
 #include "pros/misc.h"
 #include "pros/optical.hpp"
@@ -39,6 +42,13 @@ ez::Drive chassis(
 ez::tracking_wheel horiz_tracker(19, 2, 4.0);  // This tracking wheel is perpendicular to the drive wheels
 ez::tracking_wheel vert_tracker(18, 2, 4.0);   // This tracking wheel is parallel to the drive wheels
 
+struct AutonList {
+  std::string name;
+  std::function<void()> func;
+};
+std::vector<AutonList> AutonSelect;
+std::string selectedAuton;
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -72,23 +82,14 @@ void initialize() {
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
   // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y, pros::E_CONTROLLER_DIGITAL_A);
 
-  // Autonomous Selector using LLEMU
-  // ez::as::auton_selector.autons_add({
-  //     {"Drive\n\nDrive forward and come back", drive_example},
-  //     {"Turn\n\nTurn 3 times.", turn_example},
-  //     {"Drive and Turn\n\nDrive forward, turn, come back", drive_and_turn},
-  //     {"Drive and Turn\n\nSlow down during drive", wait_until_change_speed},
-  //     {"Swing Turn\n\nSwing in an 'S' curve", swing_example},
-  //     {"Motion Chaining\n\nDrive forward, turn, and come back, but blend everything together :D", motion_chaining},
-  //     {"Combine all 3 movements", combining_movements},
-  //     {"Interference\n\nAfter driving forward, robot performs differently if interfered or not", interfered_example},
-  //     {"Simple Odom\n\nThis is the same as the drive example, but it uses odom instead!", odom_drive_example},
-  //     {"Pure Pursuit\n\nGo to (0, 30) and pass through (6, 10) on the way.  Come back to (0, 0)", odom_pure_pursuit_example},
-  //     {"Pure Pursuit Wait Until\n\nGo to (24, 24) but start running an intake once the robot passes (12, 24)", odom_pure_pursuit_wait_until_example},
-  //     {"Boomerang\n\nGo to (0, 24, 45) then come back to (0, 0, 0)", odom_boomerang_example},
-  //     {"Boomerang Pure Pursuit\n\nGo to (0, 24, 45) on the way to (24, 24) then come back to (0, 0, 0)", odom_boomerang_injected_pure_pursuit_example},
-  //     {"Measure Offsets\n\nThis will turn the robot a bunch of times and calculate your offsets for your tracking wheels.", measure_offsets},
-  // });
+  AutonSelect = {
+    {"Alice", drive_example},
+    {"Bob", drive_example},
+    {"Charlie", drive_example}
+  };
+  selectedAuton = "Alice"; // default auton
+
+  master.set_text(0, 0, "Auton: " + selectedAuton);
 
   // Initialize chassis and auton selector
   chassis.initialize();
@@ -110,6 +111,32 @@ void disabled() {
   // . . .
 }
 
+void AutoSwich() {
+  int index = 0;
+  while (true) {
+    if (master.get_digital_new_press(DIGITAL_UP)) {
+      index++;
+      if (index >= AutonSelect.size()) {
+        index = 0;
+      }
+      selectedAuton = AutonSelect[index].name;
+      master.set_text(0, 0, "Auton: " + selectedAuton);
+    }
+    if (master.get_digital_new_press(DIGITAL_DOWN)) {
+      index--;
+      if (index < 0) {
+        index = AutonSelect.size() - 1;
+      }
+      selectedAuton = AutonSelect[index].name;
+      master.set_text(0, 0, "Auton: " + selectedAuton);
+    }
+    if (master.get_digital_new_press(DIGITAL_A)) {
+      break;
+    }
+    pros::delay(100);
+  }
+}
+
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
  * Management System or the VEX Competition Switch. This is intended for
@@ -120,7 +147,7 @@ void disabled() {
  * starts.
  */
 void competition_initialize() {
-  // . . .
+  AutoSwich();
 }
 
 /**
@@ -158,7 +185,13 @@ void autonomous() {
   //   renderGif();
   // }
 
-  ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+  //ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+
+  for (int i = 0; i < AutonSelect.size(); i++) {
+    if (AutonSelect[i].name == selectedAuton) {
+      AutonSelect[i].func();
+    }
+  }
 }
 
 /**
@@ -276,20 +309,25 @@ void opcontrol() {
   int BlueRangeMax = 220;
 
   int RedRangeMin = 7;
-  int RedRangeMax = 20;
+  int RedRangeMax = 30;
 
   bool tongueToggle = false;
   bool hoodToggle = false;
 
   bool forceFront = false; // used when we want to force the intake to go out the front for color sort
   int forceFrontTimer = 0;
-  int forceFrontDuration = 1; // how long we want to force the intake out the front for color sort (in secsonds)
+  float forceFrontDuration = 0.25; // how long we want to force the intake out the front for color sort (in secsonds)
 
   bool enableColorSort = true; // master toggle for color sort
+  bool forceColorSort = true; // set when the user manually disables color sort
+  bool team = false; // false = blue, true = red
+
+  AutoSwich();
 
   while (true) {
+
     // Gives you some extras to make EZ-Template ezier
-    // ez_template_extras();
+    ez_template_extras();
 
     chassis.opcontrol_tank();  // Tank control
     // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
@@ -304,10 +342,14 @@ void opcontrol() {
 
     if (master.get_digital_new_press(DIGITAL_X)) { // toggle color sort
       enableColorSort = !enableColorSort; // flip the toggle
-      ColorSensor.set_led_pwm(enableColorSort ? 100 : 0); // turn the color sensor led on or off based on the toggle
-      ColorSensor2.set_led_pwm(enableColorSort ? 100 : 0); // turn the color sensor led on or off based on the toggle
-      master.set_text(0, 0, enableColorSort ? "Color Sort: ON " : "Color Sort: OFF");
+      if (!enableColorSort) {
+        forceColorSort = false; // unlock auto-enable when user turns it OFF
+      }
     }
+
+    ColorSensor.set_led_pwm(enableColorSort ? 100 : 0); // turn the color sensor led on or off based on the toggle
+    ColorSensor2.set_led_pwm(enableColorSort ? 100 : 0); // turn the color sensor led on or off based on the toggle
+    master.set_text(0, 0, enableColorSort ? "Color Sort: ON " : "Color Sort: OFF");
 
     forceFrontTimer--; // decrement the timer
     if (forceFrontTimer <= 0) { // if the timer is done
@@ -321,16 +363,26 @@ void opcontrol() {
     } else if (master.get_digital(DIGITAL_L1) || forceFront) { // intake out front
       intakeMain.move(127);
       intakeTop.move(-127);
+      if (enableColorSort && !forceFront) { // if we're color sorting and forcing the intake out the front
+        enableColorSort = false; // disable color sort so we don't keep forcing the intake out the front
+      }
     } else if (master.get_digital(DIGITAL_R2)) { // out take through the bottom
       intakeMain.move(-127);
       intakeTop.move(0);
+      if (enableColorSort && !forceFront) {
+        enableColorSort = false;
+        forceColorSort = true; // lock it OFF until user explicitly toggles
+      }
     } else { // stop if no buttons are pressed
       intakeMain.move(0);
       intakeTop.move(0);
+      if (!forceColorSort && !forceFront) {
+        enableColorSort = true; // only auto re-enable if we’re not locked
+      }
     }
 
     // if the color is within the range of blue on either sensor then it's likely blue
-    if ((ColorSensor.get_hue() >= BlueRangeMin && ColorSensor.get_hue() <= BlueRangeMax) || (ColorSensor2.get_hue() >= BlueRangeMin && ColorSensor2.get_hue() <= BlueRangeMax) && enableColorSort) { // if the color is blue
+    if ((ColorSensor.get_hue() >= BlueRangeMin && ColorSensor.get_hue() <= BlueRangeMax) || (ColorSensor2.get_hue() >= BlueRangeMin && ColorSensor2.get_hue() <= BlueRangeMax) && enableColorSort && !team) { // if the color is blue
       // master.rumble(".-."); // debugging stuff
       // printf("Blue Detected: %f\n", ColorSensor.get_hue());
 
@@ -339,7 +391,7 @@ void opcontrol() {
     }
 
     // if the color is within the range of red on either sensor then it's likely red
-    if ((ColorSensor.get_hue() >= RedRangeMin && ColorSensor.get_hue() <= RedRangeMax) || (ColorSensor2.get_hue() >= RedRangeMin && ColorSensor2.get_hue() <= RedRangeMax) && enableColorSort) { // if the color is red
+    if ((ColorSensor.get_hue() >= RedRangeMin && ColorSensor.get_hue() <= RedRangeMax) || (ColorSensor2.get_hue() >= RedRangeMin && ColorSensor2.get_hue() <= RedRangeMax) && enableColorSort && team) { // if the color is red
       // master.rumble("-.-"); // debugging stuff
       // printf("Red Detected: %f\n", ColorSensor.get_hue());
 
