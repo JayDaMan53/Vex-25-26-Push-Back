@@ -385,7 +385,7 @@ void opcontrol() {
     } else if (master.get_digital(DIGITAL_R2)) { // out take through the bottom
       intakeMain.move(-127);
       intakeTop.move(0);
-      Storage.move(-127);
+      Storage.move(127);
       if (enableColorSort && !forceFront) { // if we're color sorting and forcing the intake out the front
         enableColorSort = false; // disable color sort so we don't keep forcing the intake out the front
         forceColorSort = true; // lock it OFF until user explicitly toggles
@@ -398,6 +398,10 @@ void opcontrol() {
         forceColorSort = false;
         enableColorSort = true; // only auto re-enable if we’re not locked
       }
+    }
+
+    if (!enableColorSort && forceFront) {
+      forceFront = false; // if color sort is disabled and we're forcing the intake out the front, stop forcing it out the front
     }
 
     // if the color is within the range of blue on either sensor then it's likely blue
