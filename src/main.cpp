@@ -14,8 +14,8 @@
 
 pros::Controller master (CONTROLLER_MASTER);
 
-pros::adi::DigitalOut tongue ('g');
-pros::adi::DigitalOut hood ('h');
+pros::adi::DigitalOut tongue ('a');
+pros::adi::DigitalOut hood ('b');
 
 pros::Optical ColorSensor (17);
 pros::Optical ColorSensor2 (16);
