@@ -39,8 +39,8 @@ ez::Drive chassis(
 //  - you should get positive values on the encoders going FORWARD and RIGHT
 // - `2.75` is the wheel diameter
 // - `4.0` is the distance from the center of the wheel to the center of the robot
-ez::tracking_wheel horiz_tracker(19, 2, 4.0);  // This tracking wheel is perpendicular to the drive wheels
-ez::tracking_wheel vert_tracker(18, 2, 4.0);   // This tracking wheel is parallel to the drive wheels
+ez::tracking_wheel horiz_tracker(19, 2, 1.0);  // This tracking wheel is perpendicular to the drive wheels
+ez::tracking_wheel vert_tracker(18, 2, 3.0);   // This tracking wheel is parallel to the drive wheels
 
 struct AutonList {
   std::string name;
@@ -187,11 +187,13 @@ void autonomous() {
 
   //ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 
-  for (int i = 0; i < AutonSelect.size(); i++) {
-    if (AutonSelect[i].name == selectedAuton) {
-      AutonSelect[i].func();
-    }
-  }
+  RedLeft(false);
+
+  // for (int i = 0; i < AutonSelect.size(); i++) {
+  //   if (AutonSelect[i].name == selectedAuton) {
+  //     AutonSelect[i].func();
+  //   }
+  // }
 }
 
 /**

@@ -1,4 +1,7 @@
+#include <future>
+#include "EZ-Template/util.hpp"
 #include "main.h"
+#include "subsystems.hpp"
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -6,9 +9,21 @@
 /////
 
 // These are out of 127
-const int DRIVE_SPEED = 110;
+const int DRIVE_SPEED = 110; // 110
 const int TURN_SPEED = 90;
 const int SWING_SPEED = 110;
+
+extern pros::Controller master;
+
+extern pros::adi::DigitalOut tongue;
+extern pros::adi::DigitalOut hood;
+
+extern pros::Optical ColorSensor;
+extern pros::Optical ColorSensor2;
+
+extern pros::Motor intakeMain;
+extern pros::Motor intakeTop;
+extern pros::Motor Storage;
 
 ///
 // Constants
@@ -334,7 +349,7 @@ void measure_offsets() {
     chassis.pid_targets_reset();
     chassis.drive_imu_reset();
     chassis.drive_sensor_reset();
-    chassis.drive_brake_set(MOTOR_BRAKE_HOLD);
+    chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);
     chassis.odom_xyt_set(0_in, 0_in, 0_deg);
     double imu_start = chassis.odom_theta_get();
     double target = i % 2 == 0 ? 90 : 270;  // Switch the turn target every run from 270 to 90
@@ -374,5 +389,158 @@ void measure_offsets() {
 }
 
 // . . .
-// Make your own autonomous functions here!
+// Macros
 // . . .
+
+void Outtake(int location, bool UseColorSensor = true, int runtime = 1000) {
+  // start output
+  if (location == 0) { // top
+    hood.set_value(false);
+    intakeMain.move(127);
+    intakeTop.move(127);
+    Storage.move(127);
+  } else if (location == 1) { // middle
+    intakeMain.move(127);
+    intakeTop.move(-127);
+    Storage.move(127);
+  } else if (location == 2) { // bottom
+    intakeMain.move(-127);
+    intakeTop.move(0);
+    Storage.move(127);
+  }
+  // wait for the block(s) to exit
+  pros::delay(runtime);
+
+  intakeMain.move(0);
+  intakeTop.move(0);
+  Storage.move(0);
+}
+
+// . . .
+// Autos
+// . . .
+
+void RedLeft(bool SoloWinPoint) {
+  hood.set_value(true); // start with hood in intake mode
+  tongue.set_value(false); // start with hood in intake mode
+
+  intakeMain.move(127);
+  intakeTop.move(127);
+
+  // drive to first set of balls
+  chassis.pid_odom_set(22_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // turn to balls
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  // drive forwards a bit
+  chassis.pid_odom_set(16_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // turn to goal
+  chassis.pid_turn_set(45_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  // tongue down so no better scoring
+  // tongue.set_value(true);
+
+  // go to output
+  chassis.pid_odom_set(16_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // output out the middle
+  Outtake(1, true, 1000);
+
+  // backup
+  chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  if (SoloWinPoint) {
+    // turn to go across feild
+    chassis.pid_turn_set(135_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    // go to other side
+    chassis.pid_odom_set(48_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    // turn to goal
+    chassis.pid_turn_set(0_deg, TURN_SPEED);
+    chassis.pid_wait();
+    // might want to replate ^ with a swing to make it sexy
+
+    // go to goal
+    chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    // out-take out the bottom
+    Outtake(2, true, 1000);
+
+    // back up from goal
+    chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    // Replace ^ with a sexy swing
+    
+    // turn to preload
+    chassis.pid_turn_set(-90_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    // drive to preload
+    chassis.pid_odom_set(60_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+  } else {
+    // turn to preload
+    chassis.pid_turn_set(-145_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    // drive to preload
+    chassis.pid_odom_set(35_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+  }
+
+  // turn fully to preload
+  chassis.pid_turn_set(180_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  // back up a tad bit
+  chassis.pid_odom_set(-6_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // tongue down to grab preload
+  tongue.set_value(true);
+
+  // give it a second to go down
+  pros::delay(500);
+
+  // Start intake
+  intakeMain.move(127);
+  intakeTop.move(127);
+  chassis.pid_wait();
+
+  // move in
+  chassis.pid_odom_set(12_in, 90, true);
+  chassis.pid_wait();
+
+  // wait to pickup stuff
+  pros::delay(1000);
+
+  // move out
+  chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // bring it back
+  tongue.set_value(false);
+
+  // 180 to the goal
+  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  // go to the goal
+  chassis.pid_odom_set(24_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // out-take out the middle
+  Outtake(0, true, 10000);
+}
