@@ -447,11 +447,11 @@ void RedLeft(bool SoloWinPoint) {
   // tongue.set_value(true);
 
   // go to output
-  chassis.pid_odom_set(16_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   // output out the middle
-  Outtake(1, true, 1000);
+  Outtake(1, true, 1250);
 
   // backup
   chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
@@ -492,11 +492,11 @@ void RedLeft(bool SoloWinPoint) {
     chassis.pid_wait();
   } else {
     // turn to preload
-    chassis.pid_turn_set(-145_deg, TURN_SPEED);
+    chassis.pid_turn_set(-130_deg, TURN_SPEED);
     chassis.pid_wait();
 
     // drive to preload
-    chassis.pid_odom_set(35_in, DRIVE_SPEED, true);
+    chassis.pid_odom_set(34_in, DRIVE_SPEED, true);
     chassis.pid_wait();
   }
 
@@ -520,7 +520,7 @@ void RedLeft(bool SoloWinPoint) {
   chassis.pid_wait();
 
   // move in
-  chassis.pid_odom_set(12_in, 90, true);
+  chassis.pid_odom_set(14_in, 90, true);
   chassis.pid_wait();
 
   // wait to pickup stuff
@@ -538,7 +538,7 @@ void RedLeft(bool SoloWinPoint) {
   chassis.pid_wait();
 
   // go to the goal
-  chassis.pid_odom_set(24_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set(15_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   // out-take out the middle
