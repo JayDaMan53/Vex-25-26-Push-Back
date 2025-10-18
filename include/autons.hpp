@@ -20,3 +20,4 @@ void measure_offsets();
 // real autos //
 
 void RedLeft(bool SoloWinPoint = false);
+void PureTest();

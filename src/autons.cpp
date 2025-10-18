@@ -392,21 +392,21 @@ void measure_offsets() {
 // Macros
 // . . .
 
-void Outtake(int location, bool UseColorSensor = true, int runtime = 1000) {
+void Outtake(int location, bool UseColorSensor = true, int runtime = 1000, int overRideSpeed = 127) {
   // start output
   if (location == 0) { // top
     hood.set_value(false);
-    intakeMain.move(127);
-    intakeTop.move(127);
-    Storage.move(127);
+    intakeMain.move(overRideSpeed);
+    intakeTop.move(overRideSpeed);
+    Storage.move(overRideSpeed);
   } else if (location == 1) { // middle
-    intakeMain.move(127);
-    intakeTop.move(-127);
-    Storage.move(127);
+    intakeMain.move(overRideSpeed);
+    intakeTop.move(-overRideSpeed);
+    Storage.move(overRideSpeed);
   } else if (location == 2) { // bottom
-    intakeMain.move(-127);
+    intakeMain.move(-overRideSpeed);
     intakeTop.move(0);
-    Storage.move(127);
+    Storage.move(overRideSpeed);
   }
   // wait for the block(s) to exit
   pros::delay(runtime);
@@ -447,14 +447,14 @@ void RedLeft(bool SoloWinPoint) {
   // tongue.set_value(true);
 
   // go to output
-  chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set(11_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   // output out the middle
-  Outtake(1, true, 1250);
+  Outtake(1, true, 1000, 65);
 
   // backup
-  chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set(-10_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   if (SoloWinPoint) {
@@ -505,7 +505,7 @@ void RedLeft(bool SoloWinPoint) {
   chassis.pid_wait();
 
   // back up a tad bit
-  chassis.pid_odom_set(-6_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set(-3_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   // tongue down to grab preload
@@ -520,27 +520,48 @@ void RedLeft(bool SoloWinPoint) {
   chassis.pid_wait();
 
   // move in
-  chassis.pid_odom_set(14_in, 90, true);
+  chassis.pid_odom_set(22_in, 90, true);
   chassis.pid_wait();
 
   // wait to pickup stuff
   pros::delay(1000);
 
   // move out
-  chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set(-14_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   // bring it back
   tongue.set_value(false);
 
   // 180 to the goal
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_turn_set(10_deg, TURN_SPEED);
   chassis.pid_wait();
 
   // go to the goal
-  chassis.pid_odom_set(15_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set(11_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // backup a bit
+  chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   // out-take out the middle
   Outtake(0, true, 10000);
+}
+
+void PureTest() {
+  // chassis.pid_turn_set({0_in, 24_in}, rev, 90);
+  // chassis.pid_wait();
+
+  chassis.pid_odom_set({{0_in, 24_in}, fwd, 110}, true);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set({{24_in, 0_in}, fwd, 110});
+  chassis.pid_wait();
+  
+  chassis.pid_odom_set({{24_in, 24_in}, fwd, 110});
+  chassis.pid_wait();
+  
+  chassis.pid_odom_set({{0_in, 0_in}, fwd, 110});
+  chassis.pid_wait();
 }
