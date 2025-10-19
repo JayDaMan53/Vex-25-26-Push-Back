@@ -7,6 +7,15 @@
 #include "pros/misc.h"
 #include "pros/optical.hpp"
 
+// auto selector
+extern "C" {
+  #include "ui/ui.c"
+}
+
+void action_run_auto(lv_event_t e) {
+  // Placeholder for action_run_auto implementation
+}
+
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
@@ -186,6 +195,12 @@ void autonomous() {
   // }
 
   //ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+
+  // AutoSelect_tick();
+
+  currentScreen = -1 - 1;
+  lv_obj_t *screen = getLvglObjectFromIndex(currentScreen);
+  lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
   RedLeft(false);
   // PureTest();
