@@ -1,3 +1,4 @@
+#include <stdio.h>
 #if defined(EEZ_FOR_LVGL)
 #include <eez/core/vars.h>
 #endif
@@ -38,17 +39,19 @@ static lv_obj_t *getLvglObjectFromIndex(int32_t index) {
     return ((lv_obj_t **)&objects)[index];
 }
 
-// void AutoSelect_loadScreen(enum ScreensEnum screenId) {
-//     currentScreen = screenId - 1;
-//     lv_obj_t *screen = getLvglObjectFromIndex(currentScreen);
-//     lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
-// }
+void AutoSelect_loadScreen(enum ScreensEnum screenId) {
+    currentScreen = screenId - 1;
+    lv_obj_t *screen = getLvglObjectFromIndex(currentScreen);
+    // printf("Object status: %s\n", (screen == NULL) ? "NULL" : "Not NULL");
+    lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
+}
 
-// void init_AutoSelect() {
-//     create_screens();
-//     AutoSelect_loadScreen(SCREEN_ID_MAIN);
+void init_AutoSelect() {
+    create_screens();
+    change_color_theme(1);
+    AutoSelect_loadScreen(SCREEN_ID_MAIN);
 
-// }
+}
 
 // void AutoSelect_tick() {
 //     tick_screen(currentScreen);

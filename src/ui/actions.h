@@ -9,6 +9,9 @@ extern "C" {
 
 extern void action_run_auto(lv_event_t * e);
 extern void action_stop_auto(lv_event_t * e);
+extern void action_update_team(lv_event_t * e);
+extern void action_update_side(lv_event_t * e);
+extern void action_update_auto_type(lv_event_t * e);
 
 
 #ifdef __cplusplus

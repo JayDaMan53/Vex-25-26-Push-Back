@@ -19,12 +19,12 @@ extern "C" {
 
 
 
-// void init_AutoSelect();
-// void AutoSelect_tick();
+void init_AutoSelect();
+void AutoSelect_tick();
 
-// #if !defined(EEZ_FOR_LVGL)
-// void AutoSelect_loadScreen(enum ScreensEnum screenId);
-// #endif
+#if !defined(EEZ_FOR_LVGL)
+void AutoSelect_loadScreen(enum ScreensEnum screenId);
+#endif
 
 #ifdef __cplusplus
 }

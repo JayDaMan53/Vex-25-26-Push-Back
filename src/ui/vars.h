@@ -20,12 +20,6 @@ enum FlowGlobalVariables {
 
 // Native global variables
 
-extern int32_t get_var_team_color();
-extern void set_var_team_color(int32_t value);
-extern int32_t get_var_field_side();
-extern void set_var_field_side(int32_t value);
-extern int32_t get_var_auto_type();
-extern void set_var_auto_type(int32_t value);
 
 
 #ifdef __cplusplus

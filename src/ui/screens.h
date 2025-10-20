@@ -13,6 +13,7 @@ typedef struct _objects_t {
     lv_obj_t *tabs;
     lv_obj_t *bar;
     lv_obj_t *auton;
+    lv_obj_t *cooking;
     lv_obj_t *team_color_container;
     lv_obj_t *team_color_label;
     lv_obj_t *red_team_button;
