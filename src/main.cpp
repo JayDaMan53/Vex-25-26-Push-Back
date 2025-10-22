@@ -9,52 +9,9 @@
 #include "pros/adi.hpp"
 #include "pros/misc.h"
 #include "pros/optical.hpp"
-#include "ui/screens.h"
 
-// auto selector
-extern "C" {
-  #include "ui/ui.h"
-}
-
-// Auton Selector Vars
-
-bool IsAMatch = true;
-bool RunningAuto = false;
-
-int TeamColor = 1; // 1 = Red, 2 = Blue, 0 = Skills
-int TeamSide = 0; // 0 = Left, 1 = Right
-int AutonType = 0; // 0 = Normal, 1 = no-interference, 2 = Skills
-
-// Auton Selector Functions
-
-extern "C" void action_run_auto(lv_event_t * e) {
-  printf("values:");
-  printf("%s", to_string(AutonType).c_str());
-  printf("%s", to_string(TeamSide).c_str());
-  printf("%s", to_string(TeamColor).c_str());
-}
-
-extern "C" void action_stop_auto(lv_event_t * e) {
-  
-}
-
-extern "C" void action_update_auto_type(lv_event_t * e) {
-  AutonType = (int)(intptr_t)lv_event_get_user_data(e);
-  lv_label_set_text(objects.auto_type_label, ("Auto Type: " + std::string(AutonType == 0 ? "A" : (AutonType == 1 ? "B" : "C"))).c_str());
-}
-
-extern "C" void action_update_side(lv_event_t * e) {
-  TeamSide = (int)(intptr_t)lv_event_get_user_data(e);
-  lv_label_set_text(objects.field_side_label, ("Field Side: " + std::string(TeamSide == 0 ? "Left Side" : "Right Side")).c_str());
-}
-
-extern "C" void action_update_team(lv_event_t * e) {
-  TeamColor = (int)(intptr_t)lv_event_get_user_data(e);
-  change_color_theme(TeamColor);
-  lv_label_set_text(objects.team_color_label, ("Team Color: " + std::string(TeamColor == 0 ? "Skills" : (TeamColor == 1 ? "Red Team" : "Blue Team"))).c_str());
-}
-
-
+#include "AutoSelect.cpp"
+#include "ui/ui.h"
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -246,7 +203,7 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  init_AutoSelect();
+  ui_init();
 
   // RedLeft(false);
   // PureTest();

@@ -7,11 +7,11 @@
 extern "C" {
 #endif
 
-extern void action_run_auto(lv_event_t * e);
-extern void action_stop_auto(lv_event_t * e);
-extern void action_update_team(lv_event_t * e);
-extern void action_update_side(lv_event_t * e);
-extern void action_update_auto_type(lv_event_t * e);
+extern void action_change_team_color(lv_event_t * e);
+extern void action_change_feild_side(lv_event_t * e);
+extern void action_change_auto_type(lv_event_t * e);
+extern void action_start_auton(lv_event_t * e);
+extern void action_cancel_auton(lv_event_t * e);
 
 
 #ifdef __cplusplus
