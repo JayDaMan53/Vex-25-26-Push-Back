@@ -10,10 +10,10 @@
 #include "pros/misc.h"
 #include "pros/optical.hpp"
 
-// #include "AutoSelect.hpp"
-extern "C" {
-  #include "ui/ui.h"
-}
+// #include "AutoSelect.cpp"
+#include "ui/ui.h"
+
+#include "AutoSelect.hpp"
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -90,18 +90,11 @@ void initialize() {
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
   // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y, pros::E_CONTROLLER_DIGITAL_A);
 
-  AutonSelect = {
-    {"Alice", drive_example},
-    {"Bob", drive_example},
-    {"Charlie", drive_example}
-  };
-  selectedAuton = "Alice"; // default auton
-
-  master.set_text(0, 0, "Auton: " + selectedAuton);
-
   // Initialize chassis and auton selector
   chassis.initialize();
   // ez::as::initialize();
+  init_AutoSelect();
+
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 
   chassis.pid_tuner_disable();
@@ -119,32 +112,6 @@ void disabled() {
   // . . .
 }
 
-void AutoSwich() {
-  int index = 0;
-  while (true) {
-    if (master.get_digital_new_press(DIGITAL_UP)) {
-      index++;
-      if (index >= AutonSelect.size()) {
-        index = 0;
-      }
-      selectedAuton = AutonSelect[index].name;
-      master.set_text(0, 0, "Auton: " + selectedAuton);
-    }
-    if (master.get_digital_new_press(DIGITAL_DOWN)) {
-      index--;
-      if (index < 0) {
-        index = AutonSelect.size() - 1;
-      }
-      selectedAuton = AutonSelect[index].name;
-      master.set_text(0, 0, "Auton: " + selectedAuton);
-    }
-    if (master.get_digital_new_press(DIGITAL_A)) {
-      break;
-    }
-    pros::delay(100);
-  }
-}
-
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
  * Management System or the VEX Competition Switch. This is intended for
@@ -155,7 +122,7 @@ void AutoSwich() {
  * starts.
  */
 void competition_initialize() {
-  // AutoSwich();
+  IsAMatch = true;
 }
 
 /**
@@ -205,7 +172,7 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  init_AutoSelect();
+  RunSelected();
 
   // RedLeft(false);
   // PureTest();
@@ -324,9 +291,7 @@ void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
-  // if (globalGif != nullptr) {
-  //   renderGif();
-  // }
+  RunMatch();
 
   int BlueRangeMin = 130;
   int BlueRangeMax = 220;

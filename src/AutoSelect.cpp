@@ -2,8 +2,9 @@
 #include <cstddef>
 #include <type_traits>
 
-// #include "AutoSelect.hpp"
+#include "liblvgl/widgets/lv_label.h"
 #include "main.h"
+#include "ui/screens.h"
 
 
 // auto selector
@@ -50,45 +51,55 @@ void RunSelected() {
   RunningAuto = true;
   AutoSelect_loadScreen(SCREEN_ID_RUNNING);
 
+  int autoIndex = 0;
+
   if (TeamColor == 1) { // Red Team
     if (TeamSide == 0) { // Left Side
       if (AutonType == 0) { // Normal
-        AutonOptions[0].func();
+        autoIndex = 0;
       } else if (AutonType == 1) { // No-Interference
-        AutonOptions[4].func();
+        autoIndex = 4;
       } else if (AutonType == 2) {
-        AutonOptions[8].func();
+        autoIndex = 8;
       }
     } else if (TeamSide == 1) { // Right Side
       if (AutonType == 0) { // Normal
-        AutonOptions[1].func();
+        autoIndex = 1;
       } else if (AutonType == 1) { // No-Interference
-        AutonOptions[5].func();
+        autoIndex = 5;
       } else if (AutonType == 2) {
-        AutonOptions[8].func();
+        autoIndex = 8;
       }
     }
   } else if (TeamColor == 2) { // Blue Team
     if (TeamSide == 0) { // Left Side
       if (AutonType == 0) { // Normal
-        AutonOptions[2].func();
+        autoIndex = 2;
       } else if (AutonType == 1) { // No-Interference
-        AutonOptions[6].func();
+        autoIndex = 6;
       } else if (AutonType == 2) {
-        AutonOptions[8].func();
+        autoIndex = 8;
       }
     } else if (TeamSide == 1) { // Right Side
       if (AutonType == 0) { // Normal
-        AutonOptions[3].func();
+        autoIndex = 3;
       } else if (AutonType == 1) { // No-Interference
-        AutonOptions[7].func();
+        autoIndex = 7;
       } else if (AutonType == 2) {
-        AutonOptions[8].func();
+        autoIndex = 8;
       }
     }
   } else if (TeamColor == 0) { // Skills
-    AutonOptions[9].func();
+    autoIndex = 9;
   }
+
+  lv_label_set_text(objects.running_label, ("Running: " + AutonOptions[autoIndex].name).c_str());
+  AutonOptions[autoIndex].func();
+}
+
+void RunMatch() {
+  lv_label_set_text(objects.running_label, "Running: Match Control");
+  AutoSelect_loadScreen(SCREEN_ID_RUNNING);
 }
 
 // Auton Selector Functions
