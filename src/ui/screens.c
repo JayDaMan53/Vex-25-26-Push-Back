@@ -4,6 +4,7 @@
 #include "images.h"
 #include "fonts.h"
 #include "actions.h"
+#include "liblvgl/font/lv_font.h"
 #include "liblvgl/lv_conf_internal.h"
 #include "vars.h"
 #include "styles.h"
@@ -634,8 +635,9 @@ void create_screen_running() {
             {
                 lv_obj_t *parent_obj = obj;
                 {
+                    // Body
                     lv_obj_t *obj = lv_obj_create(parent_obj);
-                    objects.obj1 = obj;
+                    objects.body = obj;
                     lv_obj_set_pos(obj, 15, 8);
                     lv_obj_set_size(obj, 450, 225);
                     lv_obj_set_style_pad_left(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -658,7 +660,7 @@ void create_screen_running() {
                             lv_obj_set_size(obj, 250, LV_SIZE_CONTENT);
                             lv_obj_set_style_text_color(obj, lv_color_hex(0xffffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_obj_set_style_text_align(obj, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-                            lv_obj_set_style_text_font(obj, LV_FONT_MONTSERRAT_22, LV_PART_MAIN | LV_STATE_DEFAULT);
+                            lv_obj_set_style_text_font(obj, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_obj_set_style_text_decor(obj, LV_TEXT_DECOR_NONE, LV_PART_MAIN | LV_STATE_DEFAULT);
                             lv_label_set_text(obj, "Running: [auto name]");
                         }
@@ -689,8 +691,9 @@ void create_screen_running() {
                             }
                         }
                         {
+                            // Arc
                             lv_obj_t *obj = lv_arc_create(parent_obj);
-                            objects.obj2 = obj;
+                            objects.arc = obj;
                             lv_obj_set_pos(obj, 237, 10);
                             lv_obj_set_size(obj, 200, 200);
                             lv_arc_set_range(obj, 0, 15);
@@ -862,17 +865,17 @@ void change_color_theme(uint32_t theme_index) {
     
     lv_obj_set_style_bg_color(objects.start, lv_color_hex(theme_colors[theme_index][2]), LV_PART_MAIN | LV_STATE_DEFAULT);
     
-    lv_obj_set_style_border_color(objects.obj1, lv_color_hex(theme_colors[theme_index][2]), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(objects.body, lv_color_hex(theme_colors[theme_index][2]), LV_PART_MAIN | LV_STATE_DEFAULT);
     
     lv_obj_set_style_border_color(objects.exit, lv_color_hex(theme_colors[theme_index][1]), LV_PART_MAIN | LV_STATE_DEFAULT);
     
     lv_obj_set_style_bg_color(objects.exit, lv_color_hex(theme_colors[theme_index][1]), LV_PART_MAIN | LV_STATE_DEFAULT);
     
-    lv_obj_set_style_arc_color(objects.obj2, lv_color_hex(theme_colors[theme_index][2]), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_color(objects.arc, lv_color_hex(theme_colors[theme_index][2]), LV_PART_MAIN | LV_STATE_DEFAULT);
     
-    lv_obj_set_style_arc_color(objects.obj2, lv_color_hex(theme_colors[theme_index][2]), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_color(objects.arc, lv_color_hex(theme_colors[theme_index][2]), LV_PART_INDICATOR | LV_STATE_DEFAULT);
     
-    lv_obj_set_style_bg_color(objects.obj2, lv_color_hex(theme_colors[theme_index][3]), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(objects.arc, lv_color_hex(theme_colors[theme_index][3]), LV_PART_KNOB | LV_STATE_DEFAULT);
     
     lv_obj_invalidate(objects.team_color);
     lv_obj_invalidate(objects.feild_side);

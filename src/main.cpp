@@ -291,7 +291,9 @@ void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
-  RunMatch();
+  if (IsAMatch) {
+    RunMatch();
+  }
 
   int BlueRangeMin = 130;
   int BlueRangeMax = 220;

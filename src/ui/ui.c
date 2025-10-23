@@ -1,3 +1,4 @@
+#include "liblvgl/core/lv_disp.h"
 #if defined(EEZ_FOR_LVGL)
 #include <eez/core/vars.h>
 #endif
@@ -42,12 +43,12 @@ void AutoSelect_loadScreen(enum ScreensEnum screenId) {
     currentScreen = screenId - 1;
     lv_obj_t *screen = getLvglObjectFromIndex(currentScreen);
     lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
+    // lv_scr_load(screen);
 }
 
 void init_AutoSelect() {
     create_screens();
     AutoSelect_loadScreen(SCREEN_ID_TEAM_COLOR);
-
 }
 
 void ui_tick() {

@@ -14,7 +14,7 @@ extern "C" {
 
 // Auton Selector Vars
 
-bool IsAMatch = true;
+bool IsAMatch = false;
 bool RunningAuto = false;
 
 int TeamColor = 1; // 1 = Red, 2 = Blue, 0 = Skills
@@ -28,7 +28,7 @@ struct AutonOption {
 
 AutonOption AutonOptions[] = {
   // Normal Autons
-  {"Red Left - Normal", NULL},
+  {"Red Left - Normal", RedLeft},
   {"Red Right - Normal", NULL},
   {"Blue Left - Normal", NULL},
   {"Blue Right - Normal", NULL},
@@ -40,7 +40,7 @@ AutonOption AutonOptions[] = {
   {"Blue Right - No-Interference", NULL},
 
   // Do nothing Auton
-  {"Do Nothing", NULL},
+  {"Do Nothing", DoNothing},
 
   // Skills Auton
   {"Skills Auton", NULL}
@@ -94,7 +94,12 @@ void RunSelected() {
   }
 
   lv_label_set_text(objects.running_label, ("Running: " + AutonOptions[autoIndex].name).c_str());
-  AutonOptions[autoIndex].func();
+  if (AutonOptions[autoIndex].func != NULL) {
+    AutonOptions[autoIndex].func();
+  } else {
+    change_color_theme(THEME_ID_SKILLS);
+    AutoSelect_loadScreen(SCREEN_ID_TEAM_COLOR);
+  }
 }
 
 void RunMatch() {
@@ -111,8 +116,12 @@ extern "C" void action_cancel_auton(lv_event_t * e) {
 
 extern "C" void action_change_team_color(lv_event_t * e) {
   TeamColor = (int)(intptr_t)lv_event_get_user_data(e);
-  AutoSelect_loadScreen(SCREEN_ID_FEILD_SIDE);
   change_color_theme(TeamColor);
+  if (TeamColor == 0) {
+    AutoSelect_loadScreen(SCREEN_ID_WAITING);
+  } else {
+    AutoSelect_loadScreen(SCREEN_ID_FEILD_SIDE);
+  }
 }
 
 extern "C" void action_change_feild_side(lv_event_t * e) {
@@ -126,9 +135,5 @@ extern "C" void action_start_auton(lv_event_t * e) {
 
 extern "C" void action_change_auto_type(lv_event_t * e) {
   AutonType = (int)(intptr_t)lv_event_get_user_data(e);
-  if (IsAMatch) {
-    AutoSelect_loadScreen(SCREEN_ID_WAITING);
-  } else {
-    RunSelected();
-  }
+  AutoSelect_loadScreen(SCREEN_ID_WAITING);
 }

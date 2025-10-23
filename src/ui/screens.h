@@ -37,10 +37,10 @@ typedef struct _objects_t {
     lv_obj_t *cancel;
     lv_obj_t *start;
     lv_obj_t *content_4;
-    lv_obj_t *obj1;
+    lv_obj_t *body;
     lv_obj_t *running_label;
     lv_obj_t *exit;
-    lv_obj_t *obj2;
+    lv_obj_t *arc;
     lv_obj_t *timer;
     lv_obj_t *motor_temps_label;
     lv_obj_t *color_sort_label;

@@ -420,7 +420,11 @@ void Outtake(int location, bool UseColorSensor = true, int runtime = 1000, int o
 // Autos
 // . . .
 
-void RedLeft(bool SoloWinPoint) {
+void DoNothing() {
+  // do nothing
+}
+
+void RedLeft() {
   hood.set_value(true); // start with hood in intake mode
   tongue.set_value(false); // start with hood in intake mode
 
@@ -457,7 +461,7 @@ void RedLeft(bool SoloWinPoint) {
   chassis.pid_odom_set(-10_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
-  if (SoloWinPoint) {
+  if (false) {
     // turn to go across feild
     chassis.pid_turn_set(135_deg, TURN_SPEED);
     chassis.pid_wait();
