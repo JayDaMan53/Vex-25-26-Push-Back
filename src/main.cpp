@@ -10,8 +10,10 @@
 #include "pros/misc.h"
 #include "pros/optical.hpp"
 
-#include "AutoSelect.cpp"
-#include "ui/ui.h"
+// #include "AutoSelect.hpp"
+extern "C" {
+  #include "ui/ui.h"
+}
 
 /////
 // For installation, upgrading, documentations, and tutorials, check out our website!
@@ -203,7 +205,7 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  ui_init();
+  init_AutoSelect();
 
   // RedLeft(false);
   // PureTest();
