@@ -173,6 +173,7 @@ void autonomous() {
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
   RunSelected();
+  // RedLeft_Alt();
 
   // RedLeft(false);
   // PureTest();
@@ -351,35 +352,40 @@ void opcontrol() {
       forceFrontTimer = 0; // make sure the timer is at 0
     }
 
-    if (master.get_digital(DIGITAL_R1) && !forceFront) { // intake out the top
+    if (master.get_digital(DIGITAL_R1) && !forceFront) { // intake into storage
       intakeMain.move(127);
       intakeTop.move(127);
-      if (hoodToggle) {
-        Storage.move(127);
-      }
+      hoodToggle = true;
+      hood.set_value(hoodToggle);
       if (!enableColorSort && forceColorSort) {
         enableColorSort = true;
         forceColorSort = false; // lock it OFF until user explicitly toggles
       }
-    } else if (master.get_digital(DIGITAL_L1) || forceFront) { // intake out front
-      intakeTop.move(-127);
-      if (!forceFront) {
-        Storage.move(127);
-        intakeMain.move(75);
-      } else {
-        intakeMain.move(50);
-      }
+    } else if (master.get_digital(DIGITAL_L2) || forceFront) { // intake out front
+      intakeTop.move(-30);
+      Storage.move(127);
+      intakeMain.move(30);
       if (enableColorSort && !forceFront) {
         enableColorSort = false;
         forceColorSort = true; // lock it OFF until user explicitly toggles
       }
     } else if (master.get_digital(DIGITAL_R2)) { // out take through the bottom
-      intakeMain.move(-75);
+      intakeMain.move(-60);
       intakeTop.move(0);
-      Storage.move(127);
+      Storage.move(60);
       if (enableColorSort && !forceFront) { // if we're color sorting and forcing the intake out the front
         enableColorSort = false; // disable color sort so we don't keep forcing the intake out the front
         forceColorSort = true; // lock it OFF until user explicitly toggles
+      }
+    } else if (master.get_digital(DIGITAL_L1)) { // out take the top
+      hoodToggle = false;
+      hood.set_value(hoodToggle);
+      intakeMain.move(127);
+      intakeTop.move(127);
+      Storage.move(127);
+      if (!enableColorSort && forceColorSort) {
+        enableColorSort = true;
+        forceColorSort = false; // only auto re-enable if we’re not locked
       }
     } else { // stop if no buttons are pressed
       intakeMain.move(0);

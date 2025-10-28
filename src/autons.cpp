@@ -456,7 +456,7 @@ void RedLeft() {
   chassis.pid_wait();
 
   // output out the middle
-  Outtake(1, true, 1000, 65);
+  Outtake(1, true, 1000, 30);
 
   // backup
   chassis.pid_odom_set(-10_in, DRIVE_SPEED, true);
@@ -481,7 +481,7 @@ void RedLeft() {
     chassis.pid_wait();
 
     // out-take out the bottom
-    Outtake(2, true, 1000);
+    Outtake(2, true, 1000, 60);
 
     // back up from goal
     chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
@@ -551,7 +551,7 @@ void RedLeft() {
   chassis.pid_wait();
 
   // out-take out the top
-  Outtake(0, true, 10000);
+  Outtake(0, true, 10000, 30);
 }
 
 void RedLeft_Alt() {
@@ -593,7 +593,7 @@ void RedLeft_Alt() {
   chassis.pid_wait();
 
   // out-take out the top
-  Outtake(0, true, 10000);
+  Outtake(0, true, 10000, 30);
 }
 
 void PureTest() {
