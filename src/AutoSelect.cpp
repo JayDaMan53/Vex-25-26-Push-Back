@@ -34,7 +34,7 @@ AutonOption AutonOptions[] = {
   {"Blue Right - Normal", NULL},
 
   // No-Interference Autons
-  {"Red Left - No-Interference", NULL},
+  {"Red Left - No-Interference", RedLeft_Alt},
   {"Red Right - No-Interference", NULL},
   {"Blue Left - No-Interference", NULL},
   {"Blue Right - No-Interference", NULL},

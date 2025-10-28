@@ -422,6 +422,7 @@ void Outtake(int location, bool UseColorSensor = true, int runtime = 1000, int o
 
 void DoNothing() {
   // do nothing
+  chassis.pid_odom_set({{0_in, 12_in}, fwd, 110});
 }
 
 void RedLeft() {
@@ -549,7 +550,49 @@ void RedLeft() {
   chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
-  // out-take out the middle
+  // out-take out the top
+  Outtake(0, true, 10000);
+}
+
+void RedLeft_Alt() {
+  // start intake
+  intakeMain.move(127);
+  intakeTop.move(127);
+
+  // pickup blocks and go to preload
+  chassis.pid_odom_set({
+    {{-24_in, 24_in}, fwd, 110}, // blocks
+    {{-48_in, 0_in, 180_deg}, fwd, 110} // preload
+  }, true);
+  chassis.pid_wait_until_index(0);
+
+  // stop intake
+  intakeMain.move(0);
+  intakeTop.move(0);
+  chassis.pid_wait();
+
+  // tongue down to grab preload
+  tongue.set_value(true);
+
+  // give it a second to go down
+  pros::delay(500);
+
+  // start intake
+  intakeMain.move(127);
+  intakeTop.move(127);
+
+  // move up to preload
+  chassis.pid_odom_set({{{-48_in, -12_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_wait();
+
+  // give it a second to intake
+  pros::delay(500);
+
+  // go to goal
+  chassis.pid_odom_set({{{-48_in, 28_in, 0_deg}, fwd, 110}}, true);
+  chassis.pid_wait();
+
+  // out-take out the top
   Outtake(0, true, 10000);
 }
 

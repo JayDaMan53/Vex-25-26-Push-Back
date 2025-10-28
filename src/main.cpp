@@ -308,8 +308,8 @@ void opcontrol() {
   int forceFrontTimer = 0;
   float forceFrontDuration = 0.25; // how long we want to force the intake out the front for color sort (in secsonds)
 
-  bool enableColorSort = true; // master toggle for color sort
-  bool forceColorSort = true; // set when the user manually disables color sort
+  bool enableColorSort = false; // master toggle for color sort
+  bool forceColorSort = false; // set when the user manually disables color sort
   bool team = false; // false = blue, true = red
 
   while (true) {

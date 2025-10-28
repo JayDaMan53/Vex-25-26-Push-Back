@@ -20,5 +20,7 @@ void measure_offsets();
 // real autos //
 
 void RedLeft();
+void RedLeft_Alt();
+
 void DoNothing();
 void PureTest();
