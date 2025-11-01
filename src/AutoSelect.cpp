@@ -43,7 +43,7 @@ AutonOption AutonOptions[] = {
   {"Do Nothing", DoNothing},
 
   // Skills Auton
-  {"Skills Auton", NULL}
+  {"Skills Auton", SkillsAuton}
 };
 
 // Auton Functions

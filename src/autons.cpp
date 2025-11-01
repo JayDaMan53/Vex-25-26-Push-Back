@@ -555,21 +555,36 @@ void RedLeft() {
 }
 
 void RedLeft_Alt() {
+  hood.set_value(true); // start with hood in intake mode
+  tongue.set_value(false); // start with hood in intake mode
+
+  chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
   // start intake
   intakeMain.move(127);
   intakeTop.move(127);
 
-  // pickup blocks and go to preload
-  chassis.pid_odom_set({
-    {{-24_in, 24_in}, fwd, 110}, // blocks
-    {{-48_in, 0_in, 180_deg}, fwd, 110} // preload
-  }, true);
-  chassis.pid_wait_until_index(0);
+  // pickup blocks
+  chassis.pid_odom_set({{{-18_in, 30_in}, fwd, 110}}, true);
+  chassis.pid_wait();
+
+  pros::delay(500); // add a delay between the two paths
+
+  // turn to preload
+  chassis.pid_turn_set(-135_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set(30_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // go to preload
+  chassis.pid_odom_set({{{-42_in, 0_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_wait();
 
   // stop intake
   intakeMain.move(0);
   intakeTop.move(0);
-  chassis.pid_wait();
 
   // tongue down to grab preload
   tongue.set_value(true);
@@ -582,33 +597,204 @@ void RedLeft_Alt() {
   intakeTop.move(127);
 
   // move up to preload
-  chassis.pid_odom_set({{{-48_in, -12_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_odom_set({{{-42_in, -12_in, 180_deg}, fwd, 110}}, true);
   chassis.pid_wait();
 
   // give it a second to intake
-  pros::delay(500);
+  pros::delay(50);
+
+  // stop intake
+  intakeMain.move(0);
+  intakeTop.move(0);
 
   // go to goal
-  chassis.pid_odom_set({{{-48_in, 28_in, 0_deg}, fwd, 110}}, true);
+  chassis.pid_odom_set({{-42_in, 3_in, 180_deg}, rev, 110}, true);
+  chassis.pid_wait();
+
+  // bring tongue back up
+  tongue.set_value(false);
+
+  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set({{{-42_in, 17_in, 0_deg}, fwd, 110},}, true);
   chassis.pid_wait();
 
   // out-take out the top
-  Outtake(0, true, 10000, 30);
+  Outtake(0, true, 10000);
 }
 
-void PureTest() {
-  // chassis.pid_turn_set({0_in, 24_in}, rev, 90);
+
+// Skills
+void SkillsAuton() {
+  // hood.set_value(true); // start with hood in intake mode
+  // tongue.set_value(false); // start with hood in intake mode
+
+  // chassis.pid_odom_set({{{0_in, 32_in, 0_deg}, fwd, 110},}, true);
   // chassis.pid_wait();
 
-  chassis.pid_odom_set({{0_in, 24_in}, fwd, 110}, true);
+  // chassis.pid_turn_set(90_deg, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // tongue.set_value(true); // tongue down to grab preload
+  // pros::delay(100); // wait
+
+  // intakeMain.move(127);
+  // intakeTop.move(127);
+
+  // chassis.pid_odom_set({{{20_in, 32_in, 90_deg}, fwd, 110},}, true);
+  // chassis.pid_wait();
+
+  // pros::delay(1250); // wait to get blocks
+
+  // chassis.pid_odom_set({{{-6_in, 32_in, 90_deg}, rev, 110},}, true);
+  // chassis.pid_wait();
+
+  // intakeMain.move(0);
+  // intakeTop.move(0);
+
+  // tongue.set_value(false); // tongue up
+
+  // chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // chassis.pid_odom_set({{{-16_in, 32_in, -90_deg}, fwd, 110},}, true);
+  // chassis.pid_wait();
+
+  // Outtake(0, true, 4000); // outtake top
+
+  // hood.set_value(true); // start with hood in intake mode
+  // tongue.set_value(false); // start with hood in intake mode
+
+  // chassis.pid_odom_set({{{-6_in, 32_in, -90_deg}, rev, 110},}, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_odom_set({{{-6_in, -63_in, -180_deg}, fwd, 110},}, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_turn_set(90_deg, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // tongue.set_value(true); // tongue down to grab preload
+  // pros::delay(100); // wait
+
+  // intakeMain.move(127);
+  // intakeTop.move(127);
+
+  // chassis.pid_odom_set({{{20_in, -63_in, 90_deg}, fwd, 110},}, true);
+  // chassis.pid_wait();
+
+  // pros::delay(1250); // wait to get blocks
+
+  // chassis.pid_odom_set({{{-6_in, -63_in, 90_deg}, rev, 110},}, true);
+  // chassis.pid_wait();
+
+  // intakeMain.move(0);
+  // intakeTop.move(0);
+
+  // tongue.set_value(false); // tongue up
+
+  // chassis.pid_turn_set(-80_deg, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // chassis.pid_odom_set({{{-16_in, -63_in, -90_deg}, fwd, 80},}, true);
+  // chassis.pid_wait();
+
+  // Outtake(0, true, 4000); // outtake top
+
+  // hood.set_value(true); // start with hood in intake mode
+  // tongue.set_value(false); // start with hood in intake mode
+
+  // chassis.pid_odom_set({{{-8_in, -63_in, -90_deg}, rev, 110},}, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_odom_set({{{-8_in, -50_in, 0_deg}, fwd, 110},}, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  // chassis.pid_wait();
+
+  // chassis.pid_odom_set({{{-80_in, -50_in, -90_deg}, fwd, 110},}, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_odom_set({{{-86_in, -63_in}, fwd, 110},}, true);
+  // chassis.pid_wait();
+
+  // chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  // chassis.pid_wait();
+
+  chassis.odom_xyt_set(-86_in, -63_in, -90_deg);
+
+  hood.set_value(true); // start with hood in intake mode
+  tongue.set_value(false); // start with hood in intake mode
+
+  tongue.set_value(true); // tongue down to grab preload
+
+  pros::delay(200); // wait
+
+  intakeMain.move(127);
+  intakeTop.move(127);
+
+  chassis.pid_odom_set({{{-110_in, -63_in}, fwd, 80},}, true);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{24_in, 0_in}, fwd, 110});
+  pros::delay(1750); // wait to get blocks
+
+  chassis.pid_odom_set({{{-86_in, -63_in}, rev, 110},}, true);
   chassis.pid_wait();
-  
-  chassis.pid_odom_set({{24_in, 24_in}, fwd, 110});
+
+  intakeMain.move(0);
+  intakeTop.move(0);
+
+  tongue.set_value(false); // tongue up
+
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
   chassis.pid_wait();
-  
-  chassis.pid_odom_set({{0_in, 0_in}, fwd, 110});
+
+  chassis.pid_odom_set({{{-80_in, -63_in}, fwd, 110},}, true);
   chassis.pid_wait();
+
+  Outtake(0, true, 4000); // outtake top
+
+  chassis.pid_odom_set({{{-86_in, -63_in}, rev, 110},}, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set({{{-86_in, 32_in}, fwd, 110},}, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  hood.set_value(true); // start with hood in intake mode
+  tongue.set_value(false); // start with hood in intake mode
+
+  tongue.set_value(true); // tongue down to grab preload
+  pros::delay(100); // wait
+
+  intakeMain.move(127);
+  intakeTop.move(127);
+
+  chassis.pid_odom_set({{{-120_in, 32_in}, fwd, 80},}, true);
+  chassis.pid_wait();
+
+  pros::delay(1750); // wait to get blocks
+
+  chassis.pid_odom_set({{{-90_in, 32_in}, rev, 110},}, true);
+  chassis.pid_wait();
+
+  intakeMain.move(0);
+  intakeTop.move(0);
+
+  tongue.set_value(false); // tongue up
+
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set({{{-77_in, 32_in}, fwd, 110},}, true);
+  chassis.pid_wait();
+
+  Outtake(0, true, 4000); // outtake top
 }

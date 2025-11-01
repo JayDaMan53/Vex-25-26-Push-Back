@@ -23,4 +23,5 @@ void RedLeft();
 void RedLeft_Alt();
 
 void DoNothing();
+void SkillsAuton();
 void PureTest();
