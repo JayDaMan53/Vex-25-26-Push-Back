@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <string>
 #include "EZ-Template/sdcard.hpp"
+#include "autons.hpp"
 #include "liblvgl/core/lv_disp.h"
 #include "liblvgl/core/lv_obj.h"
 #include "pros/adi.hpp"
@@ -173,7 +174,7 @@ void autonomous() {
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
   // RunSelected();
-  SkillsAuton();
+  RedLeft_New();
 
   // RedLeft(false);
   // PureTest();

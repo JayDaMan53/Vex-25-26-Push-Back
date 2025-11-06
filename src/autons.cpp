@@ -554,6 +554,88 @@ void RedLeft() {
   Outtake(0, true, 10000, 30);
 }
 
+void RedLeft_New() {
+  hood.set_value(true); // start with hood in intake mode
+  tongue.set_value(false); // start with hood in intake mode
+
+  chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // start intake
+  intakeMain.move(127);
+  intakeTop.move(127);
+
+  // pickup blocks
+  chassis.pid_odom_set({{{-18_in, 30_in}, fwd, 110}}, true);
+  chassis.pid_wait();
+
+  pros::delay(500); // add a delay between the two paths
+
+  chassis.pid_turn_set(45_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  // stop intake
+  intakeMain.move(0);
+  intakeTop.move(0);
+
+  // go to goal
+  chassis.pid_odom_set({{{-10_in, 36_in, 45_deg}, fwd, 110}}, true);
+  chassis.pid_wait();
+
+  Outtake(1, true, 1000, 60);; // outtake middle
+
+  chassis.pid_odom_set({{{-18_in, 30_in}, rev, 110}}, true);
+  chassis.pid_wait();
+
+  // turn to preload
+  chassis.pid_turn_set(-135_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set(30_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  // go to preload
+  chassis.pid_odom_set({{{-42_in, 0_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_wait();
+
+  // tongue down to grab preload
+  tongue.set_value(true);
+
+  // give it a second to go down
+  pros::delay(500);
+
+  // start intake
+  intakeMain.move(127);
+  intakeTop.move(127);
+
+  // move up to preload
+  chassis.pid_odom_set({{{-42_in, -12_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_wait();
+
+  // give it a second to intake
+  pros::delay(50);
+
+  // go to goal
+  chassis.pid_odom_set({{-42_in, 3_in, 180_deg}, rev, 110}, true);
+  chassis.pid_wait();
+
+  // bring tongue back up
+  tongue.set_value(false);
+
+  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set({{{-42_in, 15_in, 0_deg}, fwd, 110},}, true);
+  chassis.pid_wait();
+
+  // stop intake
+  intakeMain.move(0);
+  intakeTop.move(0);
+
+  // out-take out the top
+  Outtake(0, true, 10000);
+}
+
 void RedLeft_Alt() {
   hood.set_value(true); // start with hood in intake mode
   tongue.set_value(false); // start with hood in intake mode
@@ -603,10 +685,6 @@ void RedLeft_Alt() {
   // give it a second to intake
   pros::delay(50);
 
-  // stop intake
-  intakeMain.move(0);
-  intakeTop.move(0);
-
   // go to goal
   chassis.pid_odom_set({{-42_in, 3_in, 180_deg}, rev, 110}, true);
   chassis.pid_wait();
@@ -617,8 +695,12 @@ void RedLeft_Alt() {
   chassis.pid_turn_set(0_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-42_in, 17_in, 0_deg}, fwd, 110},}, true);
+  chassis.pid_odom_set({{{-42_in, 15_in, 0_deg}, fwd, 110},}, true);
   chassis.pid_wait();
+
+  // stop intake
+  intakeMain.move(0);
+  intakeTop.move(0);
 
   // out-take out the top
   Outtake(0, true, 10000);

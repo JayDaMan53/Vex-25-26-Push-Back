@@ -28,7 +28,7 @@ struct AutonOption {
 
 AutonOption AutonOptions[] = {
   // Normal Autons
-  {"Red Left - Normal", RedLeft},
+  {"Red Left - Normal", RedLeft_New},
   {"Red Right - Normal", NULL},
   {"Blue Left - Normal", NULL},
   {"Blue Right - Normal", NULL},

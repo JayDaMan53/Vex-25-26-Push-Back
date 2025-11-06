@@ -21,6 +21,7 @@ void measure_offsets();
 
 void RedLeft();
 void RedLeft_Alt();
+void RedLeft_New();
 
 void DoNothing();
 void SkillsAuton();
