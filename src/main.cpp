@@ -100,8 +100,8 @@ void initialize() {
 
   chassis.pid_tuner_disable();
 
-  ColorSensor.set_led_pwm(100);
-  ColorSensor2.set_led_pwm(100);
+  // ColorSensor.set_led_pwm(100);
+  // ColorSensor2.set_led_pwm(100);
 }
 
 /**
@@ -174,7 +174,7 @@ void autonomous() {
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
   // RunSelected();
-  RedLeft_New();
+  SkillsAuton_short();
 
   // RedLeft(false);
   // PureTest();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "autons.hpp"
 void default_constants();
 
 void drive_example();
@@ -19,10 +20,21 @@ void measure_offsets();
 
 // real autos //
 
+void RedLeft_old();
+
 void RedLeft();
 void RedLeft_Alt();
-void RedLeft_New();
+
+void RedRight();
+void RedRight_Alt();
+
+void BlueLeft();
+void BlueLeft_Alt();
+
+void BlueRight();
+void BlueRight_Alt();
 
 void DoNothing();
 void SkillsAuton();
+void SkillsAuton_short();
 void PureTest();
