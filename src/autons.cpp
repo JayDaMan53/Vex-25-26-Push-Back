@@ -583,7 +583,11 @@ void NormalAuto(int side) {
   chassis.pid_odom_set({{{-10_in, 36_in, 45_deg}, fwd, 110}}, true);
   chassis.pid_wait();
 
-  Outtake(1, true, 1000, 60);; // outtake middle
+  if (side == 1 || side == 3) {
+    Outtake(2, true, 750, 60);; // outtake middle
+  } else {
+    Outtake(1, true, 750, 60);; // outtake middle
+  }
 
   chassis.pid_odom_set({{{-18_in, 30_in}, rev, 110}}, true);
   chassis.pid_wait();
@@ -610,7 +614,7 @@ void NormalAuto(int side) {
   intakeTop.move(127);
 
   // move up to preload
-  chassis.pid_odom_set({{{-42_in, -12_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_odom_set({{{-42_in, -15_in, 180_deg}, fwd, 110}}, true);
   chassis.pid_wait();
 
   // give it a second to intake
@@ -1003,12 +1007,16 @@ void RedLeft() {
   NormalAuto(0);
 }
 void RedRight() {
+  chassis.odom_x_flip();
+  chassis.odom_theta_flip();
   NormalAuto(1);
 }
 void BlueLeft() {
   NormalAuto(2);
 }
 void BlueRight() {
+  chassis.odom_x_flip();
+  chassis.odom_theta_flip();
   NormalAuto(3);
 }
 
@@ -1016,11 +1024,15 @@ void RedLeft_Alt() {
   AltAuto(0);
 }
 void RedRight_Alt() {
+  chassis.odom_x_flip();
+  chassis.odom_theta_flip();
   AltAuto(1);
 }
 void BlueLeft_Alt() {
   AltAuto(2);
 }
 void BlueRight_Alt() {
+  chassis.odom_x_flip();
+  chassis.odom_theta_flip();
   AltAuto(3);
 }
