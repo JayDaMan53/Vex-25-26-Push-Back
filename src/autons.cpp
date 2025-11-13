@@ -570,8 +570,6 @@ void NormalAuto(int side) {
   chassis.pid_odom_set({{{-18_in, 30_in}, fwd, 110}}, true);
   chassis.pid_wait();
 
-  pros::delay(500); // add a delay between the two paths
-
   chassis.pid_turn_set(45_deg, TURN_SPEED);
   chassis.pid_wait();
 
@@ -580,7 +578,7 @@ void NormalAuto(int side) {
   intakeTop.move(0);
 
   // go to goal
-  chassis.pid_odom_set({{{-10_in, 36_in, 45_deg}, fwd, 110}}, true);
+  chassis.pid_odom_set({{{-10_in, 35_in, 45_deg}, fwd, 110}}, true);
   chassis.pid_wait();
 
   if (side == 1 || side == 3) {
@@ -600,7 +598,7 @@ void NormalAuto(int side) {
   chassis.pid_wait();
 
   // go to preload
-  chassis.pid_odom_set({{{-42_in, 0_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_odom_set({{{-40_in, 0_in, 180_deg}, fwd, 110}}, true);
   chassis.pid_wait();
 
   // tongue down to grab preload
@@ -614,14 +612,14 @@ void NormalAuto(int side) {
   intakeTop.move(127);
 
   // move up to preload
-  chassis.pid_odom_set({{{-42_in, -15_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_odom_set({{{-40_in, -15_in, 180_deg}, fwd, 110}}, true);
   chassis.pid_wait();
 
   // give it a second to intake
   pros::delay(50);
 
   // go to goal
-  chassis.pid_odom_set({{-42_in, 3_in, 180_deg}, rev, 110}, true);
+  chassis.pid_odom_set({{-40_in, 3_in, 180_deg}, rev, 110}, true);
   chassis.pid_wait();
 
   // bring tongue back up
@@ -630,7 +628,7 @@ void NormalAuto(int side) {
   chassis.pid_turn_set(0_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-42_in, 15_in, 0_deg}, fwd, 110},}, true);
+  chassis.pid_odom_set({{{-40_in, 17_in, 0_deg}, fwd, 110},}, true);
   chassis.pid_wait();
 
   // stop intake
@@ -685,7 +683,7 @@ void AltAuto(int side) {
   intakeTop.move(127);
 
   // move up to preload
-  chassis.pid_odom_set({{{-42_in, -12_in, 180_deg}, fwd, 110}}, true);
+  chassis.pid_odom_set({{{-42_in, -14_in, 180_deg}, fwd, 110}}, true);
   chassis.pid_wait();
 
   // give it a second to intake
@@ -701,7 +699,7 @@ void AltAuto(int side) {
   chassis.pid_turn_set(0_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-42_in, 15_in, 0_deg}, fwd, 110},}, true);
+  chassis.pid_odom_set({{{-42_in, 17_in, 0_deg}, fwd, 110},}, true);
   chassis.pid_wait();
 
   // stop intake
@@ -1011,10 +1009,10 @@ void RedRight() {
   chassis.odom_theta_flip();
   NormalAuto(1);
 }
-void BlueLeft() {
+void BlueRight() {
   NormalAuto(2);
 }
-void BlueRight() {
+void BlueLeft() {
   chassis.odom_x_flip();
   chassis.odom_theta_flip();
   NormalAuto(3);
@@ -1028,10 +1026,10 @@ void RedRight_Alt() {
   chassis.odom_theta_flip();
   AltAuto(1);
 }
-void BlueLeft_Alt() {
+void BlueRight_Alt() {
   AltAuto(2);
 }
-void BlueRight_Alt() {
+void BlueLeft_Alt() {
   chassis.odom_x_flip();
   chassis.odom_theta_flip();
   AltAuto(3);
