@@ -570,21 +570,33 @@ void NormalAuto(int side) {
   chassis.pid_odom_set({{{-18_in, 30_in}, fwd, 110}}, true);
   chassis.pid_wait();
 
-  chassis.pid_turn_set(45_deg, TURN_SPEED);
-  chassis.pid_wait();
+  // chassis.pid_turn_set(45_deg, TURN_SPEED);
+  // chassis.pid_wait();
 
   // stop intake
-  intakeMain.move(0);
-  intakeTop.move(0);
+  // intakeMain.move(0);
+  // intakeTop.move(0);
 
   // go to goal
-  chassis.pid_odom_set({{{-10_in, 35_in, 45_deg}, fwd, 110}}, true);
-  chassis.pid_wait();
 
-  if (side == 1 || side == 3) {
-    Outtake(2, true, 750, 60);; // outtake middle
+  if (side == 1 || side == 2) {
+    chassis.pid_odom_set({{{-10_in, 35_in, 45_deg}, fwd, 110}}, true);
+    chassis.pid_wait();
+
+    // stop intake
+    intakeMain.move(0);
+    intakeTop.move(0);
+
+    Outtake(2, true, 750, 90); // outtake bottom
   } else {
-    Outtake(1, true, 750, 60);; // outtake middle
+    chassis.pid_odom_set({{{-8_in, 36_in, 45_deg}, fwd, 110}}, true);
+    chassis.pid_wait();
+
+    // stop intake
+    intakeMain.move(0);
+    intakeTop.move(0);
+
+    Outtake(1, true, 750, 60); // outtake middle
   }
 
   chassis.pid_odom_set({{{-18_in, 30_in}, rev, 110}}, true);
@@ -594,7 +606,7 @@ void NormalAuto(int side) {
   chassis.pid_turn_set(-135_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set(30_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set(28_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   // go to preload
@@ -616,7 +628,7 @@ void NormalAuto(int side) {
   chassis.pid_wait();
 
   // give it a second to intake
-  pros::delay(50);
+  pros::delay(0);
 
   // go to goal
   chassis.pid_odom_set({{-40_in, 3_in, 180_deg}, rev, 110}, true);
@@ -625,10 +637,10 @@ void NormalAuto(int side) {
   // bring tongue back up
   tongue.set_value(false);
 
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_turn_set(-10_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-40_in, 17_in, 0_deg}, fwd, 110},}, true);
+  chassis.pid_odom_set({{{-41_in, 16_in, -10_deg}, fwd, 110},}, true);
   chassis.pid_wait();
 
   // stop intake
@@ -937,7 +949,7 @@ void SkillsAuton_short() {
   chassis.pid_turn_set(-90_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-13.5_in, 32_in, -90_deg}, fwd, 110},}, true);
+  chassis.pid_odom_set({{{-13_in, 32_in, -90_deg}, fwd, 110},}, true);
   chassis.pid_wait(); //.25
 
   Outtake(0, true, 10000); // outtake top
@@ -965,7 +977,7 @@ void SkillsAuton_short() {
 
   pros::delay(1250); // wait to get blocks
 
-  chassis.pid_odom_set({{{-6_in, -63_in, 90_deg}, rev, 110},}, true);
+  chassis.pid_odom_set({{{0_in, -63_in, 90_deg}, rev, 110},}, true);
   chassis.pid_wait();
 
   intakeMain.move(0);
@@ -976,7 +988,7 @@ void SkillsAuton_short() {
   chassis.pid_turn_set(-80_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-13.25_in, -63_in, -90_deg}, fwd, 80},}, true);
+  chassis.pid_odom_set({{{-12_in, -63_in, -90_deg}, fwd, 80},}, true);
   chassis.pid_wait(); //.0
 
   Outtake(0, true, 10000); // outtake top
@@ -995,7 +1007,7 @@ void SkillsAuton_short() {
   chassis.pid_odom_set({{{25_in, -35_in, 180_deg}, fwd, 70},}, true);
   chassis.pid_wait();
 
-  chassis.pid_odom_set(-35_in, 70, true);
+  chassis.pid_odom_set(-35_in, 80, true);
   chassis.pid_wait();
 }
 
@@ -1009,13 +1021,13 @@ void RedRight() {
   chassis.odom_theta_flip();
   NormalAuto(1);
 }
-void BlueRight() {
-  NormalAuto(2);
-}
 void BlueLeft() {
+  NormalAuto(3);
+}
+void BlueRight() {
   chassis.odom_x_flip();
   chassis.odom_theta_flip();
-  NormalAuto(3);
+  NormalAuto(2);
 }
 
 void RedLeft_Alt() {
@@ -1026,11 +1038,11 @@ void RedRight_Alt() {
   chassis.odom_theta_flip();
   AltAuto(1);
 }
-void BlueRight_Alt() {
-  AltAuto(2);
-}
 void BlueLeft_Alt() {
+  AltAuto(3);
+}
+void BlueRight_Alt() {
   chassis.odom_x_flip();
   chassis.odom_theta_flip();
-  AltAuto(3);
+  AltAuto(2);
 }
