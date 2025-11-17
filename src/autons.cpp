@@ -977,7 +977,7 @@ void SkillsAuton_short() {
 
   pros::delay(1250); // wait to get blocks
 
-  chassis.pid_odom_set({{{0_in, -63_in, 90_deg}, rev, 110},}, true);
+  chassis.pid_odom_set({{{0_in, -64_in, 90_deg}, rev, 110},}, true);
   chassis.pid_wait();
 
   intakeMain.move(0);
@@ -988,7 +988,7 @@ void SkillsAuton_short() {
   chassis.pid_turn_set(-80_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-12_in, -63_in, -90_deg}, fwd, 80},}, true);
+  chassis.pid_odom_set({{{-12_in, -64_in, -90_deg}, fwd, 80},}, true);
   chassis.pid_wait(); //.0
 
   Outtake(0, true, 10000); // outtake top
@@ -1001,13 +1001,24 @@ void SkillsAuton_short() {
 
   // chassis.odom_xyt_set(-8_in, -63_in, -90_deg);
 
+  intakeMain.move(-110);
+  intakeTop.move(0);
+  Storage.move(0);
+
   chassis.pid_odom_set({{{25_in, -30_in, 180_deg}, rev, 70},}, true);
   chassis.pid_wait();
   
   chassis.pid_odom_set({{{25_in, -35_in, 180_deg}, fwd, 70},}, true);
   chassis.pid_wait();
 
+  intakeMain.move(0);
+  intakeTop.move(0);
+  Storage.move(0);
+
   chassis.pid_odom_set(-35_in, 80, true);
+  chassis.pid_wait();
+  
+  chassis.pid_odom_set(10_in, 80, true);
   chassis.pid_wait();
 }
 
