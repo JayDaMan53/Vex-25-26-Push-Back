@@ -191,7 +191,7 @@ class Motor : public AbstractMotor, public Device {
 	 *   }
 	 *   motor.move_relative(100, 100); // Also moves 100 units forward
 	 *   while (!((motor.get_position() < 205) && (motor.get_position() > 195))) {
-	 *     pros::delay(2);
+	 *     pros::delay(2);w
 	 *   }
 	 * }
 	 * \endcode

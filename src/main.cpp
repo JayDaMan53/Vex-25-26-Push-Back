@@ -1,24 +1,24 @@
 // #MARK: Includes
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "lemlib/chassis/trackingWheel.hpp"
 
 #include "pros/adi.hpp"
 #include "pros/misc.h"
 #include "pros/motors.hpp"
+#include "pros/rtos.hpp"
 #include "ui/ui.h"
 #include "AutoSelect.hpp"
 #include <map>
 #include <string>
 
-// #MARK: Global Definitions
+#include "Macros.cpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-pros::MotorGroup leftMotors({-4, 5, -6}, pros::MotorGearset::blue); // left motor group - ports 3 (reversed), 4, 5 (reversed)
-pros::MotorGroup rightMotors({1, -2, 3}, pros::MotorGearset::blue); // right motor group - ports 6, 7, 9 (reversed)
+pros::MotorGroup leftMotors({-4, 5, -6}, pros::MotorGearset::blue); // left motor group - ports 4 (reversed), 5, 6 (reversed)
+pros::MotorGroup rightMotors({1, -2, 3}, pros::MotorGearset::blue); // right motor group - ports 1, 2 (reversed), 3
 
 // Inertial Sensor on port 10
 pros::Imu imu(20);
@@ -89,13 +89,17 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
-// #MARK: Custom Motor Defs
-pros::Motor intakeMotor(7, pros::v5::MotorGears::blue); // intake motor on port 8
-pros::Motor ScoreMotor(8, pros::v5::MotorGears::red); // score motor on port 9
+pros::Motor intakeMotor(7, pros::v5::MotorGears::blue); // intake motor on port 7
+pros::Motor ScoreMotor(8, pros::v5::MotorGears::red); // score motor on port 8
 
 pros::adi::DigitalOut ScoreOuttakePiston('a');
 pros::adi::DigitalOut ParkPiston('c');
 pros::adi::DigitalOut TonguePiston('b');
+
+bool runningScore = false;
+bool doublePark = false;
+bool tongueOut = false;
+bool scoreStateUp = false;
 
 // #MARK: Initialize Function
 /**
@@ -187,8 +191,6 @@ void autonomous() {
     pros::lcd::print(4, "pure pursuit finished!");
 }
 
-// #MARK: Custom Macros
-
 bool GetKey(pros::controller_digital_e_t key, bool NewPress = false, bool Released = false) {
     if (NewPress) {
         return controller.get_digital_new_press(key);
@@ -199,6 +201,33 @@ bool GetKey(pros::controller_digital_e_t key, bool NewPress = false, bool Releas
     }
 }
 
+void ChangeScoreState(bool State) {
+    ScoreOuttakePiston.set_value(State);
+}
+
+
+
+void Score(void* State) {
+    runningScore = true;
+    ChangeScoreState(State);
+    ScoreMotor.move_relative(1180, 100);
+    // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+    pros::delay(200);
+    while (ScoreMotor.get_actual_velocity() != 0) {
+        // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+	    pros::delay(2);
+    }
+    pros::delay(500);
+    ScoreMotor.move_relative(-1180, 100);
+    // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+    pros::delay(200);
+    while (ScoreMotor.get_actual_velocity() != 0) {
+        // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+	    pros::delay(2);
+    }
+    printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+    runningScore = false;
+}
 
 // #MARK: Operator Control Function
 /**
@@ -216,11 +245,6 @@ void opcontrol() {
         {"CancelDoublePark", pros::E_CONTROLLER_DIGITAL_B},
         {"Tongue", pros::E_CONTROLLER_DIGITAL_Y}
     };
-
-    bool runningScore = false;
-    bool doublePark = false;
-    bool tongueOut = false;
-    bool scoreStateUp = false;
     
     while (true) {
         // get joystick positions
@@ -248,20 +272,18 @@ void opcontrol() {
         // Scoring
         if (GetKey(Keybinds["ScoreUp"], true) || GetKey(Keybinds["ScoreDown"], true)) {
             if (!runningScore) {
-                runningScore = true;
                 if (GetKey(Keybinds["ScoreUp"], true)) {
                     scoreStateUp = true;
                 } else if (GetKey(Keybinds["ScoreDown"], true)) {
                     scoreStateUp = false;
                 }
-
-                ScoreOuttakePiston.set_value(scoreStateUp);
-
-                // maybe add a delay here later idk
-
-                ScoreMotor.move_relative(360, 100);
-                runningScore = false;
+                
+                pros::Task ScoreThread(Score, (void*)scoreStateUp);
             }
+        }
+
+        if (!runningScore) { // constantly move down
+            ScoreMotor.move(-25);
         }
 
         // Intaking / Outtaking out front
@@ -278,7 +300,7 @@ void opcontrol() {
             doublePark = true;
             ParkPiston.set_value(doublePark);
         } else if (GetKey(Keybinds["CancelDoublePark"], true)) {
-            doublePark = true;
+            doublePark = false;
             ParkPiston.set_value(false);
         }
 

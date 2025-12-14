@@ -592,8 +592,9 @@
       }
     },
     "upload_options": {
-      "icon": "planet",
-      "slot": 1
+      "icon": "pizza",
+      "slot": 1,
+      "description": "40040M"
     },
     "use_early_access": false
   }
