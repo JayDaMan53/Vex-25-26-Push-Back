@@ -6,6 +6,7 @@
 #include "main.h"
 #include "ui/screens.h"
 
+// #include "autos.hpp"
 
 // auto selector
 extern "C" {
@@ -28,7 +29,7 @@ struct AutonOption {
 
 AutonOption AutonOptions[] = {
   // Normal Autons
-//   {"Red Left - Normal", RedLeft},
+  // {"Red Left - Normal", RedLeft},
 //   {"Red Right - Normal", RedRight},
 //   {"Blue Left - Normal", BlueLeft},
 //   {"Blue Right - Normal", BlueRight},
