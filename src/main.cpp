@@ -17,8 +17,8 @@
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-pros::MotorGroup leftMotors({4, -5, 6}, pros::MotorGearset::blue); // left motor group - ports 4 (reversed), 5, 6 (reversed)
-pros::MotorGroup rightMotors({-1, 2, -3}, pros::MotorGearset::blue); // right motor group - ports 1, 2 (reversed), 3
+pros::MotorGroup leftMotors({-4, 5, -6}, pros::MotorGearset::blue); // left motor group - ports 4 (reversed), 5, 6 (reversed)
+pros::MotorGroup rightMotors({1, -2, 3}, pros::MotorGearset::blue); // right motor group - ports 1, 2 (reversed), 3
 
 // Inertial Sensor on port 10
 pros::Imu imu(20);
@@ -27,7 +27,7 @@ pros::Imu imu(20);
 // horizontal tracking wheel encoder. Rotation sensor, port 18, not reversed
 pros::Rotation horizontalEnc(18);
 // vertical tracking wheel encoder. Rotation sensor, port 19, reversed
-pros::Rotation verticalEnc(-19);
+pros::Rotation verticalEnc(19);
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
 lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, 4);
 // vertical tracking wheel. 2.75" diameter, 2.5" offset, left of the robot (negative)
@@ -158,6 +158,7 @@ void competition_initialize() {}
 // get a path used for pure pursuit
 // this needs to be put outside a function
 ASSET(example_txt); // '.' replaced with "_" to make c++ happy
+ASSET(a_txt); // '.' replaced with "_" to make c++ happy
 
 
 // #MARK: Autonomous Function
@@ -194,7 +195,7 @@ void autonomous() {
     // chassis.waitUntilDone();
     // pros::lcd::print(4, "pure pursuit finished!");
 
-    // chassis.follow(TestPath_txt, 15, 4000, false);
+    chassis.follow(a_txt, 15, 4000, false);
 
 
     // chassis.setBrakeMode(MOTOR_BRAKE_HOLD);
@@ -203,9 +204,11 @@ void autonomous() {
     
     // RunSelected();
     // set position to x:0, y:0, heading:0
-    chassis.setPose(0, 0, 0);
+    // chassis.setPose(0, 0, 0);
     // turn to face heading 90 with a very long timeout
-    chassis.turnToHeading(90, 100000);
+    // chassis.moveToPose(0, 15, 0, 4000);
+    // chassis.waitUntilDone();
+    // chassis.turnToHeading(90, 100000);
     
     // while (true) {
     //     printf("rot: %.2f\n", imu.get_rotation());
@@ -279,7 +282,8 @@ void opcontrol() {
         // move the chassis with curvature drive
         // only when not dp
         if (!LockMovement) {
-            chassis.tank(rightY, leftY);
+            chassis.tank(leftY, rightY);
+            // chassis.tank(rightY, leftY);
         }
 
         // controller.print(0, 0, "X: %f", chassis.getPose().x); // x
