@@ -8,10 +8,9 @@
 #include "pros/rtos.hpp"
 #include "ui/ui.h"
 #include "AutoSelect.hpp"
+#include <cstdio>
 #include <map>
 #include <string>
-
-// #include "autos.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -29,7 +28,7 @@ pros::Rotation horizontalEnc(18);
 // vertical tracking wheel encoder. Rotation sensor, port 19, reversed
 pros::Rotation verticalEnc(19);
 // horizontal tracking wheel. 2.75" diameter, 5.75" offset, back of the robot (negative)
-lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, 4);
+lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -3);
 // vertical tracking wheel. 2.75" diameter, 2.5" offset, left of the robot (negative)
 lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, 0);
 
@@ -44,14 +43,14 @@ lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
 
 // lateral motion controller
 lemlib::ControllerSettings linearController(10, // proportional gain (kP)
-                                            0, // integral gain (kI)
-                                            3, // derivative gain (kD)
-                                            3, // anti windup
-                                            1, // small error range, in inches
-                                            100, // small error range timeout, in milliseconds
-                                            3, // large error range, in inches
-                                            500, // large error range timeout, in milliseconds
-                                            20 // maximum acceleration (slew)
+                                              0, // integral gain (kI)
+                                              3, // derivative gain (kD)
+                                              3, // anti windup
+                                              1, // small error range, in inches
+                                              100, // small error range timeout, in milliseconds
+                                              3, // large error range, in inches
+                                              500, // large error range timeout, in milliseconds
+                                              20 // maximum acceleration (slew)
 );
 
 // angular motion controller
@@ -96,12 +95,14 @@ pros::Motor ScoreMotor(-8, pros::v5::MotorGears::red); // score motor on port 8
 pros::adi::DigitalOut ScoreOuttakePiston('a');
 pros::adi::DigitalOut ParkPiston('c');
 pros::adi::DigitalOut TonguePiston('b');
+pros::adi::DigitalOut HoodHook('d');
 
 bool runningScore = false;
 bool doublePark = false;
 bool tongueOut = false;
 bool scoreStateUp = false;
 bool LockMovement = false;
+bool HoodHookState = false;
 
 // #MARK: Initialize Function
 /**
@@ -195,24 +196,28 @@ void autonomous() {
     // chassis.waitUntilDone();
     // pros::lcd::print(4, "pure pursuit finished!");
 
-    chassis.follow(a_txt, 15, 4000, false);
+    chassis.setPose(0, 0, 90);
+    chassis.moveToPose(42, 0, 90, 2000);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(180, 1000);
+    // chassis.turnToPoint(42, -20, 1000, {.maxSpeed = 60});
+    chassis.waitUntilDone();
+    TonguePiston.set_value(1);
+    chassis.moveToPoint(42, -20, 4000);
+    chassis.waitUntilDone();
 
+    // chassis.turnToPoint(20, 0, 4000, {.maxSpeed = 60});
+    // chassis.waitUntilDone();
+    // chassis.moveToPoint(20, 0, 4000);
+    // chassis.waitUntilDone();
 
-    // chassis.setBrakeMode(MOTOR_BRAKE_HOLD);
-    // chassis.resetLocalPosition();
-    // chassis.setPose(0, 0, 0);
-    
-    // RunSelected();
     // set position to x:0, y:0, heading:0
     // chassis.setPose(0, 0, 0);
-    // turn to face heading 90 with a very long timeout
-    // chassis.moveToPose(0, 15, 0, 4000);
-    // chassis.waitUntilDone();
-    // chassis.turnToHeading(90, 100000);
+    // // move 48" forwards
+    // chassis.moveToPoint(0, 48, 10000);
     
-    // while (true) {
-    //     printf("rot: %.2f\n", imu.get_rotation());
-    // }
+
+    // Skills();
 }
 
 bool GetKey(pros::controller_digital_e_t key, bool NewPress = false, bool Released = false) {
@@ -235,6 +240,10 @@ void ChangeScoreState(bool State) {
 void Score(void* State) {
     runningScore = true;
     ChangeScoreState(State);
+
+    HoodHookState = true;
+    HoodHook.set_value(HoodHookState);
+
     ScoreMotor.move_relative(1180, State ? 100 : 50);
     // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
     pros::delay(200);
@@ -269,7 +278,8 @@ void opcontrol() {
         {"DoublePark", pros::E_CONTROLLER_DIGITAL_X},
         {"LockMovement+ChangeHeight", pros::E_CONTROLLER_DIGITAL_RIGHT},
         {"CancelDoublePark", pros::E_CONTROLLER_DIGITAL_B},
-        {"Tongue", pros::E_CONTROLLER_DIGITAL_Y}
+        {"Tongue", pros::E_CONTROLLER_DIGITAL_Y},
+        {"HoodHook", pros::E_CONTROLLER_DIGITAL_UP}
     };
     
     while (true) {
@@ -277,13 +287,13 @@ void opcontrol() {
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightY = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
 
-        controller.print(0, 0, "X: %d Y: %d", chassis.getPose().x, chassis.getPose().y);
+        // controller.print(0, 0, "X: %d Y: %d", chassis.getPose().x, chassis.getPose().y);
 
         // move the chassis with curvature drive
         // only when not dp
         if (!LockMovement) {
-            chassis.tank(leftY, rightY);
-            // chassis.tank(rightY, leftY);
+            // chassis.tank(leftY, rightY);
+            chassis.tank(-rightY, -leftY);
         }
 
         // controller.print(0, 0, "X: %f", chassis.getPose().x); // x
@@ -348,6 +358,12 @@ void opcontrol() {
         if (GetKey(Keybinds["Tongue"], true)) {
             tongueOut = !tongueOut;
             TonguePiston.set_value(tongueOut);
+        }
+
+        // HoodHook
+        if (GetKey(Keybinds["HoodHook"], true)) {
+            HoodHookState = !HoodHookState;
+            HoodHook.set_value(HoodHookState);
         }
 
         pros::delay(10);
