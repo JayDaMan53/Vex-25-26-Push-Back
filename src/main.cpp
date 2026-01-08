@@ -23,21 +23,19 @@
 
 pros::Controller master (CONTROLLER_MASTER);
 
-pros::adi::DigitalOut tongue ('a');
-pros::adi::DigitalOut hood ('b');
+pros::Motor intakeMotor(7, pros::v5::MotorGears::blue); // intake motor on port 7
+pros::Motor ScoreMotor(-8, pros::v5::MotorGears::red); // score motor on port 8
 
-pros::Optical ColorSensor (17);
-pros::Optical ColorSensor2 (16);
-
-pros::Motor intakeMain (-7);
-pros::Motor intakeTop (-8);
-pros::Motor Storage (9);
+pros::adi::DigitalOut ScoreOuttakePiston('a');
+pros::adi::DigitalOut ParkPiston('c');
+pros::adi::DigitalOut TonguePiston('b');
+pros::adi::DigitalOut HoodHook('d');
 
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-4,-5,-6},     // Left Chassis Ports (negative port will reverse it!)
-    {1,2,3},  // Right Chassis Ports (negative port will reverse it!)
+    {-4,5,-6},     // Left Chassis Ports (negative port will reverse it!)
+    {1,-2,3},  // Right Chassis Ports (negative port will reverse it!)
 
     20,      // IMU Port
     3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
@@ -48,8 +46,8 @@ ez::Drive chassis(
 //  - you should get positive values on the encoders going FORWARD and RIGHT
 // - `2.75` is the wheel diameter
 // - `4.0` is the distance from the center of the wheel to the center of the robot
-ez::tracking_wheel horiz_tracker(19, 2, 1.0);  // This tracking wheel is perpendicular to the drive wheels
-ez::tracking_wheel vert_tracker(18, 2, 3.0);   // This tracking wheel is parallel to the drive wheels
+ez::tracking_wheel horiz_tracker(18, 2, -2);  // This tracking wheel is perpendicular to the drive wheels
+ez::tracking_wheel vert_tracker(19, 2, 0);   // This tracking wheel is parallel to the drive wheels
 
 struct AutonList {
   std::string name;
@@ -57,6 +55,14 @@ struct AutonList {
 };
 std::vector<AutonList> AutonSelect;
 std::string selectedAuton;
+
+bool runningScore = false;
+bool doublePark = false;
+bool tongueOut = false;
+bool scoreStateUp = false;
+bool LockMovement = false;
+bool HoodHookState = false;
+
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -99,6 +105,8 @@ void initialize() {
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 
   chassis.pid_tuner_disable();
+
+  ParkPiston.set_value(true);
 
   // ColorSensor.set_led_pwm(100);
   // ColorSensor2.set_led_pwm(100);
@@ -173,7 +181,8 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  RunSelected();
+  // RunSelected();
+  test();
   // RedLeft();
 
   // RedLeft(false);
@@ -276,6 +285,41 @@ void ez_template_extras() {
     }
 }
 
+bool GetKey(pros::controller_digital_e_t key, bool NewPress = false) {
+    if (NewPress) {
+      return master.get_digital_new_press(key);
+    } else {
+      return master.get_digital(key);
+    }
+}
+
+void ChangeScoreState(bool State) {
+    scoreStateUp = State;
+    ScoreOuttakePiston.set_value(State);
+}
+
+void Score(void* State) {
+    runningScore = true;
+    ChangeScoreState(State);
+    ScoreMotor.move_relative(1180, State ? 100 : 50);
+    // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+    pros::delay(200);
+    while (ScoreMotor.get_actual_velocity() != 0) {
+        // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+	    pros::delay(2);
+    }
+    pros::delay(500);
+    ScoreMotor.move_relative(-1180, 100);
+    // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+    pros::delay(200);
+    while (ScoreMotor.get_actual_velocity() != 0) {
+        // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+	    pros::delay(2);
+    }
+    printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+    runningScore = false;
+}
+
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -293,26 +337,21 @@ void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
 
-  if (IsAMatch) {
-    RunMatch();
-  }
+  // if (IsAMatch) {
+  //   RunMatch();
+  // }
 
-  int BlueRangeMin = 130;
-  int BlueRangeMax = 220;
-
-  int RedRangeMin = 7;
-  int RedRangeMax = 30;
-
-  bool tongueToggle = false;
-  bool hoodToggle = false;
-
-  bool forceFront = false; // used when we want to force the intake to go out the front for color sort
-  int forceFrontTimer = 0;
-  float forceFrontDuration = 0.25; // how long we want to force the intake out the front for color sort (in secsonds)
-
-  bool enableColorSort = false; // master toggle for color sort
-  bool forceColorSort = false; // set when the user manually disables color sort
-  bool team = false; // false = blue, true = red
+  std::map<std::string, pros::controller_digital_e_t> Keybinds = {
+        {"Intake", pros::E_CONTROLLER_DIGITAL_R1},
+        {"Outtake", pros::E_CONTROLLER_DIGITAL_R2},
+        {"ScoreUp", pros::E_CONTROLLER_DIGITAL_L1},
+        {"ScoreDown", pros::E_CONTROLLER_DIGITAL_L2},
+        {"DoublePark", pros::E_CONTROLLER_DIGITAL_X},
+        {"LockMovement+ChangeHeight", pros::E_CONTROLLER_DIGITAL_RIGHT},
+        {"CancelDoublePark", pros::E_CONTROLLER_DIGITAL_B},
+        {"Tongue", pros::E_CONTROLLER_DIGITAL_Y},
+        {"HoodHook", pros::E_CONTROLLER_DIGITAL_UP}
+  };
 
   while (true) {
     // enableColorSort = false;
@@ -320,107 +359,71 @@ void opcontrol() {
     // Gives you some extras to make EZ-Template ezier
     // ez_template_extras();
 
-    chassis.opcontrol_tank();  // Tank control
+    if (!LockMovement) {
+      chassis.opcontrol_tank();  // Tank control
+    }
+
     // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
 
-    if (master.get_digital_new_press(DIGITAL_B)) { // toggle tongue mech
-      tongue.set_value(tongueToggle);
-      tongueToggle = !tongueToggle; // flip the toggle
+    // Scoring
+    if (GetKey(Keybinds["ScoreUp"], true) || GetKey(Keybinds["ScoreDown"], true)) {
+        if (!runningScore) {
+            if (GetKey(Keybinds["ScoreUp"], false)) {
+                scoreStateUp = true;
+            } else if (GetKey(Keybinds["ScoreDown"], false)) {
+                scoreStateUp = false;
+            }
+            
+            pros::Task ScoreThread(Score, (void*)scoreStateUp);
+        }
     }
 
-    if (master.get_digital_new_press(DIGITAL_DOWN)) { // toggle tongue mech
-      hood.set_value(hoodToggle);
-      hoodToggle = !hoodToggle; // flip the toggle
+
+    if (!runningScore) { // constantly move down
+        ScoreMotor.move(-25);
     }
 
-    if (master.get_digital_new_press(DIGITAL_X)) { // toggle color sort
-      enableColorSort = !enableColorSort; // flip the toggle
-      if (!enableColorSort) {
-        forceColorSort = false; // unlock auto-enable when user turns it OFF
-      }
+    // Intaking / Outtaking out front
+    if (GetKey(Keybinds["Intake"])) {
+        intakeMotor.move(127);
+    } else if (GetKey(Keybinds["Outtake"])) {
+        intakeMotor.move(-127);
+    } else {
+        intakeMotor.move(0);
     }
 
-    ColorSensor.set_led_pwm(enableColorSort ? 100 : 0); // turn the color sensor led on or off based on the toggle
-    ColorSensor2.set_led_pwm(enableColorSort ? 100 : 0); // turn the color sensor led on or off based on the toggle
-    master.set_text(0, 0, enableColorSort ? "Color Sort: ON " : "Color Sort: OFF");
-
-    forceFrontTimer--; // decrement the timer
-    if (forceFrontTimer <= 0) { // if the timer is done
-      forceFront = false; // stop forcing the intake to go out the front
-      forceFrontTimer = 0; // make sure the timer is at 0
+    // Double Park
+    if (GetKey(Keybinds["DoublePark"], true)) {
+        doublePark = true;
+        ParkPiston.set_value(doublePark);
     }
 
-    if (master.get_digital(DIGITAL_R1) && !forceFront) { // intake into storage
-      intakeMain.move(127);
-      intakeTop.move(127);
-      hoodToggle = true;
-      hood.set_value(hoodToggle);
-      if (!enableColorSort && forceColorSort) {
-        enableColorSort = true;
-        forceColorSort = false; // lock it OFF until user explicitly toggles
-      }
-    } else if (master.get_digital(DIGITAL_L2) || forceFront) { // intake out front
-      intakeTop.move(-30);
-      Storage.move(127);
-      intakeMain.move(30);
-      if (enableColorSort && !forceFront) {
-        enableColorSort = false;
-        forceColorSort = true; // lock it OFF until user explicitly toggles
-      }
-    } else if (master.get_digital(DIGITAL_R2)) { // out take through the bottom
-      intakeMain.move(-60);
-      intakeTop.move(0);
-      Storage.move(60);
-      if (enableColorSort && !forceFront) { // if we're color sorting and forcing the intake out the front
-        enableColorSort = false; // disable color sort so we don't keep forcing the intake out the front
-        forceColorSort = true; // lock it OFF until user explicitly toggles
-      }
-    } else if (master.get_digital(DIGITAL_L1)) { // out take the top
-      hoodToggle = false;
-      hood.set_value(hoodToggle);
-      intakeMain.move(127);
-      intakeTop.move(127);
-      Storage.move(127);
-      if (!enableColorSort && forceColorSort) {
-        enableColorSort = true;
-        forceColorSort = false; // only auto re-enable if we’re not locked
-      }
-    } else { // stop if no buttons are pressed
-      intakeMain.move(0);
-      intakeTop.move(0);
-      Storage.move(0);
-      if (forceColorSort && !forceFront) {
-        forceColorSort = false;
-        enableColorSort = true; // only auto re-enable if we’re not locked
-      }
+    bool LMCH = GetKey(Keybinds["LockMovement+ChangeHeight"], true);
+    
+    if (LMCH && doublePark) {
+        LockMovement = true;
+    } else if (GetKey(Keybinds["CancelDoublePark"], true) && doublePark) {
+        doublePark = false;
+        LockMovement = false;
+        ParkPiston.set_value(doublePark);
+    } else if (LMCH && !doublePark) {
+        scoreStateUp = !scoreStateUp;
+        ChangeScoreState(scoreStateUp);
     }
 
-    if (!enableColorSort && forceFront) {
-      forceFront = false; // if color sort is disabled and we're forcing the intake out the front, stop forcing it out the front
+    // Tongue
+    if (GetKey(Keybinds["Tongue"], true)) {
+        tongueOut = !tongueOut;
+        TonguePiston.set_value(tongueOut);
     }
 
-    // if the color is within the range of blue on either sensor then it's likely blue
-    if (((ColorSensor.get_hue() >= BlueRangeMin && ColorSensor.get_hue() <= BlueRangeMax) || (ColorSensor2.get_hue() >= BlueRangeMin && ColorSensor2.get_hue() <= BlueRangeMax)) && enableColorSort && !team) { // if the color is blue
-      master.rumble(".-."); // debugging stuff
-      printf("Blue Detected: %f%g\n", ColorSensor.get_hue(), ColorSensor2.get_hue());
-
-      forceFront = true; // we want to force the intake to go out the front for color sort
-      forceFrontTimer = forceFrontDuration * 1000 / ez::util::DELAY_TIME; // set the timer
+    if (GetKey(Keybinds["HoodHook"], true)) {
+        HoodHookState = !HoodHookState;
+        HoodHook.set_value(HoodHookState);
     }
-
-    // if the color is within the range of red on either sensor then it's likely red
-    if (((ColorSensor.get_hue() >= RedRangeMin && ColorSensor.get_hue() <= RedRangeMax) || (ColorSensor2.get_hue() >= RedRangeMin && ColorSensor2.get_hue() <= RedRangeMax)) && enableColorSort && team) { // if the color is red
-      master.rumble("-.-"); // debugging stuff
-      printf("Red Detected: %f%g\n", ColorSensor.get_hue(), ColorSensor2.get_hue());
-
-      forceFront = true; // we want to force the intake to go out the front for color sort
-      forceFrontTimer = forceFrontDuration * 1000 / ez::util::DELAY_TIME; // set the timer
-    }
-
-    // printf("not Detected: %f\n", ColorSensor.get_hue());
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }

@@ -17,6 +17,7 @@ extern pros::Controller master;
 
 extern pros::adi::DigitalOut tongue;
 extern pros::adi::DigitalOut hood;
+extern pros::adi::DigitalOut TonguePiston;
 
 extern pros::Optical ColorSensor;
 extern pros::Optical ColorSensor2;
@@ -388,672 +389,716 @@ void measure_offsets() {
   if (chassis.odom_tracker_front != nullptr) chassis.odom_tracker_front->distance_to_center_set(f_offset);
 }
 
+extern void ChangeScoreState(bool State);
+extern void Score(void* State);
+
+void test() {
+  // chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  chassis.pid_odom_set({{{-5_in, 18_in}, fwd, 110},}, true);
+  chassis.pid_wait();
+  
+  TonguePiston.set_value(true);
+  pros::delay(1000);
+  TonguePiston.set_value(false);
+
+  chassis.pid_odom_set({{{-28_in, 44_in}, fwd, 110},}, true);
+  chassis.pid_wait();
+
+  TonguePiston.set_value(true);
+  pros::delay(1000);
+
+  chassis.pid_odom_set({{{-5_in, 20_in}, rev, 110},}, true);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set({{{-30_in, 0_in}, fwd, 110},}, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(180_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set({{{-30_in, 18_in}, rev, 110},}, true);
+  chassis.pid_wait();
+
+  Score((void*) true);
+
+  chassis.pid_odom_set({{{-30_in, -10_in}, fwd, 110},}, true);
+  chassis.pid_wait();
+
+  pros::delay(1000);
+
+  chassis.pid_odom_set({{{-30_in, 18_in}, rev, 110},}, true);
+  chassis.pid_wait();
+
+  Score((void*) true);
+}
+
 // . . .
 // Macros
 // . . .
 
-void Outtake(int location, bool UseColorSensor = true, int runtime = 1000, int overRideSpeed = 127) {
-  // start output
-  if (location == 0) { // top
-    hood.set_value(false);
-    intakeMain.move(overRideSpeed);
-    intakeTop.move(overRideSpeed);
-    Storage.move(overRideSpeed);
-  } else if (location == 1) { // middle
-    intakeMain.move(overRideSpeed);
-    intakeTop.move(-overRideSpeed);
-    Storage.move(overRideSpeed);
-  } else if (location == 2) { // bottom
-    intakeMain.move(-overRideSpeed);
-    intakeTop.move(0);
-    Storage.move(overRideSpeed);
-  }
-  // wait for the block(s) to exit
-  pros::delay(runtime);
+// void Outtake(int location, bool UseColorSensor = true, int runtime = 1000, int overRideSpeed = 127) {
+//   // start output
+//   if (location == 0) { // top
+//     hood.set_value(false);
+//     intakeMain.move(overRideSpeed);
+//     intakeTop.move(overRideSpeed);
+//     Storage.move(overRideSpeed);
+//   } else if (location == 1) { // middle
+//     intakeMain.move(overRideSpeed);
+//     intakeTop.move(-overRideSpeed);
+//     Storage.move(overRideSpeed);
+//   } else if (location == 2) { // bottom
+//     intakeMain.move(-overRideSpeed);
+//     intakeTop.move(0);
+//     Storage.move(overRideSpeed);
+//   }
+//   // wait for the block(s) to exit
+//   pros::delay(runtime);
 
-  intakeMain.move(0);
-  intakeTop.move(0);
-  Storage.move(0);
-}
+//   intakeMain.move(0);
+//   intakeTop.move(0);
+//   Storage.move(0);
+// }
 
-// . . .
-// Autos
-// . . .
+// // . . .
+// // Autos
+// // . . .
 
-void DoNothing() {
-  // do nothing
-  chassis.pid_odom_set({{0_in, 12_in}, fwd, 110});
-}
+// void DoNothing() {
+//   // do nothing
+//   chassis.pid_odom_set({{0_in, 12_in}, fwd, 110});
+// }
 
-void RedLeft_old() {
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+// void RedLeft_old() {
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  // drive to first set of balls
-  chassis.pid_odom_set(22_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   // drive to first set of balls
+//   chassis.pid_odom_set(22_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // turn to balls
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   // turn to balls
+//   chassis.pid_turn_set(-90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  // drive forwards a bit
-  chassis.pid_odom_set(16_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   // drive forwards a bit
+//   chassis.pid_odom_set(16_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // turn to goal
-  chassis.pid_turn_set(45_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   // turn to goal
+//   chassis.pid_turn_set(45_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  // tongue down so no better scoring
-  // tongue.set_value(true);
+//   // tongue down so no better scoring
+//   // tongue.set_value(true);
 
-  // go to output
-  chassis.pid_odom_set(11_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   // go to output
+//   chassis.pid_odom_set(11_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // output out the middle
-  Outtake(1, true, 1000, 30);
+//   // output out the middle
+//   Outtake(1, true, 1000, 30);
 
-  // backup
-  chassis.pid_odom_set(-10_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   // backup
+//   chassis.pid_odom_set(-10_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  if (false) {
-    // turn to go across feild
-    chassis.pid_turn_set(135_deg, TURN_SPEED);
-    chassis.pid_wait();
+//   if (false) {
+//     // turn to go across feild
+//     chassis.pid_turn_set(135_deg, TURN_SPEED);
+//     chassis.pid_wait();
 
-    // go to other side
-    chassis.pid_odom_set(48_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+//     // go to other side
+//     chassis.pid_odom_set(48_in, DRIVE_SPEED, true);
+//     chassis.pid_wait();
 
-    // turn to goal
-    chassis.pid_turn_set(0_deg, TURN_SPEED);
-    chassis.pid_wait();
-    // might want to replate ^ with a swing to make it sexy
+//     // turn to goal
+//     chassis.pid_turn_set(0_deg, TURN_SPEED);
+//     chassis.pid_wait();
+//     // might want to replate ^ with a swing to make it sexy
 
-    // go to goal
-    chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+//     // go to goal
+//     chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
+//     chassis.pid_wait();
 
-    // out-take out the bottom
-    Outtake(2, true, 1000, 60);
+//     // out-take out the bottom
+//     Outtake(2, true, 1000, 60);
 
-    // back up from goal
-    chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
-    // Replace ^ with a sexy swing
+//     // back up from goal
+//     chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
+//     chassis.pid_wait();
+//     // Replace ^ with a sexy swing
     
-    // turn to preload
-    chassis.pid_turn_set(-90_deg, TURN_SPEED);
-    chassis.pid_wait();
-
-    // drive to preload
-    chassis.pid_odom_set(60_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
-  } else {
-    // turn to preload
-    chassis.pid_turn_set(-130_deg, TURN_SPEED);
-    chassis.pid_wait();
+//     // turn to preload
+//     chassis.pid_turn_set(-90_deg, TURN_SPEED);
+//     chassis.pid_wait();
+
+//     // drive to preload
+//     chassis.pid_odom_set(60_in, DRIVE_SPEED, true);
+//     chassis.pid_wait();
+//   } else {
+//     // turn to preload
+//     chassis.pid_turn_set(-130_deg, TURN_SPEED);
+//     chassis.pid_wait();
 
-    // drive to preload
-    chassis.pid_odom_set(34_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
-  }
+//     // drive to preload
+//     chassis.pid_odom_set(34_in, DRIVE_SPEED, true);
+//     chassis.pid_wait();
+//   }
 
-  // turn fully to preload
-  chassis.pid_turn_set(180_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   // turn fully to preload
+//   chassis.pid_turn_set(180_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  // back up a tad bit
-  chassis.pid_odom_set(-3_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   // back up a tad bit
+//   chassis.pid_odom_set(-3_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // tongue down to grab preload
-  tongue.set_value(true);
+//   // tongue down to grab preload
+//   tongue.set_value(true);
 
-  // give it a second to go down
-  pros::delay(500);
+//   // give it a second to go down
+//   pros::delay(500);
 
-  // Start intake
-  intakeMain.move(127);
-  intakeTop.move(127);
-  chassis.pid_wait();
+//   // Start intake
+//   intakeMain.move(127);
+//   intakeTop.move(127);
+//   chassis.pid_wait();
 
-  // move in
-  chassis.pid_odom_set(22_in, 90, true);
-  chassis.pid_wait();
+//   // move in
+//   chassis.pid_odom_set(22_in, 90, true);
+//   chassis.pid_wait();
 
-  // wait to pickup stuff
-  pros::delay(1000);
+//   // wait to pickup stuff
+//   pros::delay(1000);
 
-  // move out
-  chassis.pid_odom_set(-14_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   // move out
+//   chassis.pid_odom_set(-14_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // bring it back
-  tongue.set_value(false);
+//   // bring it back
+//   tongue.set_value(false);
 
-  // 180 to the goal
-  chassis.pid_turn_set(10_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   // 180 to the goal
+//   chassis.pid_turn_set(10_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  // go to the goal
-  chassis.pid_odom_set(11_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   // go to the goal
+//   chassis.pid_odom_set(11_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // backup a bit
-  chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   // backup a bit
+//   chassis.pid_odom_set(-12_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // out-take out the top
-  Outtake(0, true, 10000, 30);
-}
+//   // out-take out the top
+//   Outtake(0, true, 10000, 30);
+// }
 
-// side = 0 Red Left, 1 Red Right, 2 Blue Left, 3 Blue Right
-void NormalAuto(int side) {
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+// // side = 0 Red Left, 1 Red Right, 2 Blue Left, 3 Blue Right
+// void NormalAuto(int side) {
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // start intake
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   // start intake
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  // pickup blocks
-  chassis.pid_odom_set({{{-18_in, 30_in}, fwd, 110}}, true);
-  chassis.pid_wait();
+//   // pickup blocks
+//   chassis.pid_odom_set({{{-18_in, 30_in}, fwd, 110}}, true);
+//   chassis.pid_wait();
 
-  // chassis.pid_turn_set(45_deg, TURN_SPEED);
-  // chassis.pid_wait();
+//   // chassis.pid_turn_set(45_deg, TURN_SPEED);
+//   // chassis.pid_wait();
 
-  // stop intake
-  // intakeMain.move(0);
-  // intakeTop.move(0);
+//   // stop intake
+//   // intakeMain.move(0);
+//   // intakeTop.move(0);
 
-  // go to goal
+//   // go to goal
 
-  if (side == 1 || side == 2) {
-    chassis.pid_odom_set({{{-10_in, 35_in, 45_deg}, fwd, 110}}, true);
-    chassis.pid_wait();
+//   if (side == 1 || side == 2) {
+//     chassis.pid_odom_set({{{-10_in, 35_in, 45_deg}, fwd, 110}}, true);
+//     chassis.pid_wait();
 
-    // stop intake
-    intakeMain.move(0);
-    intakeTop.move(0);
+//     // stop intake
+//     intakeMain.move(0);
+//     intakeTop.move(0);
 
-    Outtake(2, true, 750, 90); // outtake bottom
-  } else {
-    chassis.pid_odom_set({{{-8_in, 36_in, 45_deg}, fwd, 110}}, true);
-    chassis.pid_wait();
+//     Outtake(2, true, 750, 90); // outtake bottom
+//   } else {
+//     chassis.pid_odom_set({{{-8_in, 36_in, 45_deg}, fwd, 110}}, true);
+//     chassis.pid_wait();
 
-    // stop intake
-    intakeMain.move(0);
-    intakeTop.move(0);
+//     // stop intake
+//     intakeMain.move(0);
+//     intakeTop.move(0);
 
-    Outtake(1, true, 750, 60); // outtake middle
-  }
+//     Outtake(1, true, 750, 60); // outtake middle
+//   }
 
-  chassis.pid_odom_set({{{-18_in, 30_in}, rev, 110}}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-18_in, 30_in}, rev, 110}}, true);
+//   chassis.pid_wait();
 
-  // turn to preload
-  chassis.pid_turn_set(-135_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   // turn to preload
+//   chassis.pid_turn_set(-135_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set(28_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set(28_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // go to preload
-  chassis.pid_odom_set({{{-40_in, 0_in, 180_deg}, fwd, 110}}, true);
-  chassis.pid_wait();
+//   // go to preload
+//   chassis.pid_odom_set({{{-40_in, 0_in, 180_deg}, fwd, 110}}, true);
+//   chassis.pid_wait();
 
-  // tongue down to grab preload
-  tongue.set_value(true);
+//   // tongue down to grab preload
+//   tongue.set_value(true);
 
-  // give it a second to go down
-  pros::delay(500);
+//   // give it a second to go down
+//   pros::delay(500);
 
-  // start intake
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   // start intake
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  // move up to preload
-  chassis.pid_odom_set({{{-40_in, -15_in, 180_deg}, fwd, 110}}, true);
-  chassis.pid_wait();
+//   // move up to preload
+//   chassis.pid_odom_set({{{-40_in, -15_in, 180_deg}, fwd, 110}}, true);
+//   chassis.pid_wait();
 
-  // give it a second to intake
-  pros::delay(0);
+//   // give it a second to intake
+//   pros::delay(0);
 
-  // go to goal
-  chassis.pid_odom_set({{-40_in, 3_in, 180_deg}, rev, 110}, true);
-  chassis.pid_wait();
+//   // go to goal
+//   chassis.pid_odom_set({{-40_in, 3_in, 180_deg}, rev, 110}, true);
+//   chassis.pid_wait();
 
-  // bring tongue back up
-  tongue.set_value(false);
+//   // bring tongue back up
+//   tongue.set_value(false);
 
-  chassis.pid_turn_set(-10_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-10_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-41_in, 16_in, -10_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-41_in, 16_in, -10_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  // stop intake
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   // stop intake
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  // out-take out the top
-  Outtake(0, true, 10000);
-}
+//   // out-take out the top
+//   Outtake(0, true, 10000);
+// }
 
-// side = 0 Red Left, 1 Red Right, 2 Blue Left, 3 Blue Right
-void AltAuto(int side) {
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+// // side = 0 Red Left, 1 Red Right, 2 Blue Left, 3 Blue Right
+// void AltAuto(int side) {
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set(12_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // start intake
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   // start intake
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  // pickup blocks
-  chassis.pid_odom_set({{{-18_in, 30_in}, fwd, 110}}, true);
-  chassis.pid_wait();
+//   // pickup blocks
+//   chassis.pid_odom_set({{{-18_in, 30_in}, fwd, 110}}, true);
+//   chassis.pid_wait();
 
-  pros::delay(500); // add a delay between the two paths
+//   pros::delay(500); // add a delay between the two paths
 
-  // turn to preload
-  chassis.pid_turn_set(-135_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   // turn to preload
+//   chassis.pid_turn_set(-135_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set(30_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set(30_in, DRIVE_SPEED, true);
+//   chassis.pid_wait();
 
-  // go to preload
-  chassis.pid_odom_set({{{-42_in, 0_in, 180_deg}, fwd, 110}}, true);
-  chassis.pid_wait();
+//   // go to preload
+//   chassis.pid_odom_set({{{-42_in, 0_in, 180_deg}, fwd, 110}}, true);
+//   chassis.pid_wait();
 
-  // stop intake
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   // stop intake
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  // tongue down to grab preload
-  tongue.set_value(true);
+//   // tongue down to grab preload
+//   tongue.set_value(true);
 
-  // give it a second to go down
-  pros::delay(500);
+//   // give it a second to go down
+//   pros::delay(500);
 
-  // start intake
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   // start intake
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  // move up to preload
-  chassis.pid_odom_set({{{-42_in, -14_in, 180_deg}, fwd, 110}}, true);
-  chassis.pid_wait();
+//   // move up to preload
+//   chassis.pid_odom_set({{{-42_in, -14_in, 180_deg}, fwd, 110}}, true);
+//   chassis.pid_wait();
 
-  // give it a second to intake
-  pros::delay(50);
+//   // give it a second to intake
+//   pros::delay(50);
 
-  // go to goal
-  chassis.pid_odom_set({{-42_in, 3_in, 180_deg}, rev, 110}, true);
-  chassis.pid_wait();
+//   // go to goal
+//   chassis.pid_odom_set({{-42_in, 3_in, 180_deg}, rev, 110}, true);
+//   chassis.pid_wait();
 
-  // bring tongue back up
-  tongue.set_value(false);
+//   // bring tongue back up
+//   tongue.set_value(false);
 
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(0_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-42_in, 17_in, 0_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-42_in, 17_in, 0_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  // stop intake
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   // stop intake
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  // out-take out the top
-  Outtake(0, true, 10000);
-}
+//   // out-take out the top
+//   Outtake(0, true, 10000);
+// }
 
-// Skills
-void SkillsAuton() {
-  chassis.odom_xyt_set(0_in, .5_in, 0_deg);
+// // Skills
+// void SkillsAuton() {
+//   chassis.odom_xyt_set(0_in, .5_in, 0_deg);
 
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  chassis.pid_odom_set({{{0_in, 32_in, 0_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{0_in, 32_in, 0_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  tongue.set_value(true); // tongue down to grab preload
+//   tongue.set_value(true); // tongue down to grab preload
 
-  // chassis.pid_odom_set({{{-5_in, 32_in, 90_deg}, rev, 110},}, true);
-  // chassis.pid_wait();
+//   // chassis.pid_odom_set({{{-5_in, 32_in, 90_deg}, rev, 110},}, true);
+//   // chassis.pid_wait();
 
-  pros::delay(100); // wait
+//   pros::delay(100); // wait
 
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  chassis.pid_odom_set({{{20_in, 32_in, 90_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{20_in, 32_in, 90_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  pros::delay(1250); // wait to get blocks
+//   pros::delay(1250); // wait to get blocks
 
-  chassis.pid_odom_set({{{-6_in, 32_in, 90_deg}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-6_in, 32_in, 90_deg}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  tongue.set_value(false); // tongue up
+//   tongue.set_value(false); // tongue up
 
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  hood.set_value(false);
-  intakeMain.move(127);
-  intakeTop.move(127);
-  Storage.move(127);
+//   hood.set_value(false);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
+//   Storage.move(127);
 
-  chassis.pid_odom_set({{{-13.5_in, 32_in, -90_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-13.5_in, 32_in, -90_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  Outtake(0, true, 4000); // outtake top
+//   Outtake(0, true, 4000); // outtake top
 
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  chassis.pid_odom_set({{{-6_in, 32_in}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-6_in, 32_in}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-3_in, -63_in, -180_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-3_in, -63_in, -180_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  tongue.set_value(true); // tongue down to grab preload
-  pros::delay(100); // wait
+//   tongue.set_value(true); // tongue down to grab preload
+//   pros::delay(100); // wait
 
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  chassis.pid_odom_set({{{20_in, -63_in, 90_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{20_in, -63_in, 90_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  pros::delay(1250); // wait to get blocks
+//   pros::delay(1250); // wait to get blocks
 
-  chassis.pid_odom_set({{{-6_in, -63_in, 90_deg}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-6_in, -63_in, 90_deg}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  tongue.set_value(false); // tongue up
+//   tongue.set_value(false); // tongue up
 
-  chassis.pid_turn_set(-80_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-80_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-13_in, -63_in, -90_deg}, fwd, 80},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-13_in, -63_in, -90_deg}, fwd, 80},}, true);
+//   chassis.pid_wait();
 
-  Outtake(0, true, 4000); // outtake top
+//   Outtake(0, true, 4000); // outtake top
 
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  chassis.pid_odom_set({{{-8_in, -63_in, -90_deg}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-8_in, -63_in, -90_deg}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-8_in, -45_in, 0_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-8_in, -45_in, 0_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  hood.set_value(true);
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   hood.set_value(true);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  chassis.pid_odom_set({{{-80_in, -45_in, -90_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-80_in, -45_in, -90_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(-135_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-135_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-86_in, -59_in}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-86_in, -59_in}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  // chassis.odom_xyt_set(-86_in, -63_in, -90_deg);
+//   // chassis.odom_xyt_set(-86_in, -63_in, -90_deg);
 
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(true); // tongue down to grab preload
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(true); // tongue down to grab preload
 
-  pros::delay(200); // wait
+//   pros::delay(200); // wait
 
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  chassis.pid_odom_set({{{-112_in, -59_in}, fwd, 80},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-112_in, -59_in}, fwd, 80},}, true);
+//   chassis.pid_wait();
 
-  pros::delay(1750); // wait to get blocks
+//   pros::delay(1750); // wait to get blocks
 
-  chassis.pid_odom_set({{{-100_in, -59_in}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-100_in, -59_in}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  tongue.set_value(false); // tongue up
+//   tongue.set_value(false); // tongue up
 
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-82_in, -60_in, 90_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-82_in, -60_in, 90_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  Outtake(0, true, 4000); // outtake top
+//   Outtake(0, true, 4000); // outtake top
 
-  chassis.pid_odom_set({{{-90_in, -59_in}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-90_in, -59_in}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(0_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(0_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-86_in, 36_in}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-86_in, 36_in}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  hood.set_value(true); // start with hood in intake mode
+//   hood.set_value(true); // start with hood in intake mode
 
-  tongue.set_value(true); // tongue down to grab preload
-  pros::delay(100); // wait
+//   tongue.set_value(true); // tongue down to grab preload
+//   pros::delay(100); // wait
 
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  chassis.pid_odom_set({{{-112_in, 36_in}, fwd, 80},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-112_in, 36_in}, fwd, 80},}, true);
+//   chassis.pid_wait();
 
-  pros::delay(1750); // wait to get blocks
+//   pros::delay(1750); // wait to get blocks
 
-  chassis.pid_odom_set({{{-100_in, 36_in}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-100_in, 36_in}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  tongue.set_value(false); // tongue up
+//   tongue.set_value(false); // tongue up
 
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-86_in, 36_in}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-86_in, 36_in}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  Outtake(0, true, 4000); // outtake top
-}
+//   Outtake(0, true, 4000); // outtake top
+// }
 
-void SkillsAuton_short() {
-  chassis.odom_xyt_set(0_in, .5_in, 0_deg);
+// void SkillsAuton_short() {
+//   chassis.odom_xyt_set(0_in, .5_in, 0_deg);
 
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  chassis.pid_odom_set({{{0_in, 32_in, 0_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{0_in, 32_in, 0_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  tongue.set_value(true); // tongue down to grab preload
+//   tongue.set_value(true); // tongue down to grab preload
 
-  // chassis.pid_odom_set({{{-5_in, 32_in, 90_deg}, rev, 110},}, true);
-  // chassis.pid_wait();
+//   // chassis.pid_odom_set({{{-5_in, 32_in, 90_deg}, rev, 110},}, true);
+//   // chassis.pid_wait();
 
-  pros::delay(100); // wait
+//   pros::delay(100); // wait
 
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  chassis.pid_odom_set({{{22_in, 32_in, 90_deg}, fwd, 110},}, true);
-  chassis.pid_wait(); //20
+//   chassis.pid_odom_set({{{22_in, 32_in, 90_deg}, fwd, 110},}, true);
+//   chassis.pid_wait(); //20
 
-  pros::delay(1250); // wait to get blocks
+//   pros::delay(1250); // wait to get blocks
 
-  chassis.pid_odom_set({{{-6_in, 32_in, 90_deg}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-6_in, 32_in, 90_deg}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  tongue.set_value(false); // tongue up
+//   tongue.set_value(false); // tongue up
 
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-13_in, 32_in, -90_deg}, fwd, 110},}, true);
-  chassis.pid_wait(); //.25
+//   chassis.pid_odom_set({{{-13_in, 32_in, -90_deg}, fwd, 110},}, true);
+//   chassis.pid_wait(); //.25
 
-  Outtake(0, true, 10000); // outtake top
+//   Outtake(0, true, 10000); // outtake top
 
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  chassis.pid_odom_set({{{-6_in, 32_in}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-6_in, 32_in}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-3_in, -63_in, -180_deg}, fwd, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-3_in, -63_in, -180_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();
 
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(90_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  tongue.set_value(true); // tongue down to grab preload
-  pros::delay(100); // wait
+//   tongue.set_value(true); // tongue down to grab preload
+//   pros::delay(100); // wait
 
-  intakeMain.move(127);
-  intakeTop.move(127);
+//   intakeMain.move(127);
+//   intakeTop.move(127);
 
-  chassis.pid_odom_set({{{22_in, -63_in, 90_deg}, fwd, 110},}, true);
-  chassis.pid_wait();//20
+//   chassis.pid_odom_set({{{22_in, -63_in, 90_deg}, fwd, 110},}, true);
+//   chassis.pid_wait();//20
 
-  pros::delay(1250); // wait to get blocks
+//   pros::delay(1250); // wait to get blocks
 
-  chassis.pid_odom_set({{{0_in, -64_in, 90_deg}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{0_in, -64_in, 90_deg}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  intakeMain.move(0);
-  intakeTop.move(0);
+//   intakeMain.move(0);
+//   intakeTop.move(0);
 
-  tongue.set_value(false); // tongue up
+//   tongue.set_value(false); // tongue up
 
-  chassis.pid_turn_set(-80_deg, TURN_SPEED);
-  chassis.pid_wait();
+//   chassis.pid_turn_set(-80_deg, TURN_SPEED);
+//   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-12_in, -64_in, -90_deg}, fwd, 80},}, true);
-  chassis.pid_wait(); //.0
+//   chassis.pid_odom_set({{{-12_in, -64_in, -90_deg}, fwd, 80},}, true);
+//   chassis.pid_wait(); //.0
 
-  Outtake(0, true, 10000); // outtake top
+//   Outtake(0, true, 10000); // outtake top
 
-  hood.set_value(true); // start with hood in intake mode
-  tongue.set_value(false); // start with hood in intake mode
+//   hood.set_value(true); // start with hood in intake mode
+//   tongue.set_value(false); // start with hood in intake mode
 
-  chassis.pid_odom_set({{{-8_in, -63_in, -90_deg}, rev, 110},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{-8_in, -63_in, -90_deg}, rev, 110},}, true);
+//   chassis.pid_wait();
 
-  // chassis.odom_xyt_set(-8_in, -63_in, -90_deg);
+//   // chassis.odom_xyt_set(-8_in, -63_in, -90_deg);
 
-  intakeMain.move(-110);
-  intakeTop.move(0);
-  Storage.move(0);
+//   intakeMain.move(-110);
+//   intakeTop.move(0);
+//   Storage.move(0);
 
-  chassis.pid_odom_set({{{25_in, -30_in, 180_deg}, rev, 70},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{25_in, -30_in, 180_deg}, rev, 70},}, true);
+//   chassis.pid_wait();
   
-  chassis.pid_odom_set({{{25_in, -35_in, 180_deg}, fwd, 70},}, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set({{{25_in, -35_in, 180_deg}, fwd, 70},}, true);
+//   chassis.pid_wait();
 
-  intakeMain.move(0);
-  intakeTop.move(0);
-  Storage.move(0);
+//   intakeMain.move(0);
+//   intakeTop.move(0);
+//   Storage.move(0);
 
-  chassis.pid_odom_set(-35_in, 80, true);
-  chassis.pid_wait();
+//   chassis.pid_odom_set(-35_in, 80, true);
+//   chassis.pid_wait();
   
-  chassis.pid_odom_set(10_in, 80, true);
-  chassis.pid_wait();
-}
+//   chassis.pid_odom_set(10_in, 80, true);
+//   chassis.pid_wait();
+// }
 
-// Mappings //
+// // Mappings //
 
-void RedLeft() {
-  NormalAuto(0);
-}
-void RedRight() {
-  chassis.odom_x_flip();
-  chassis.odom_theta_flip();
-  NormalAuto(1);
-}
-void BlueLeft() {
-  NormalAuto(3);
-}
-void BlueRight() {
-  chassis.odom_x_flip();
-  chassis.odom_theta_flip();
-  NormalAuto(2);
-}
+// void RedLeft() {
+//   NormalAuto(0);
+// }
+// void RedRight() {
+//   chassis.odom_x_flip();
+//   chassis.odom_theta_flip();
+//   NormalAuto(1);
+// }
+// void BlueLeft() {
+//   NormalAuto(3);
+// }
+// void BlueRight() {
+//   chassis.odom_x_flip();
+//   chassis.odom_theta_flip();
+//   NormalAuto(2);
+// }
 
-void RedLeft_Alt() {
-  AltAuto(0);
-}
-void RedRight_Alt() {
-  chassis.odom_x_flip();
-  chassis.odom_theta_flip();
-  AltAuto(1);
-}
-void BlueLeft_Alt() {
-  AltAuto(3);
-}
-void BlueRight_Alt() {
-  chassis.odom_x_flip();
-  chassis.odom_theta_flip();
-  AltAuto(2);
-}
+// void RedLeft_Alt() {
+//   AltAuto(0);
+// }
+// void RedRight_Alt() {
+//   chassis.odom_x_flip();
+//   chassis.odom_theta_flip();
+//   AltAuto(1);
+// }
+// void BlueLeft_Alt() {
+//   AltAuto(3);
+// }
+// void BlueRight_Alt() {
+//   chassis.odom_x_flip();
+//   chassis.odom_theta_flip();
+//   AltAuto(2);
+// }

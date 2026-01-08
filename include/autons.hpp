@@ -38,3 +38,6 @@ void DoNothing();
 void SkillsAuton();
 void SkillsAuton_short();
 void PureTest();
+
+
+void test();
