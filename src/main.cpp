@@ -34,7 +34,10 @@ pros::adi::DigitalOut HoodHook('d');
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-4,5,-6},     // Left Chassis Ports (negative port will reverse it!)
+    // {-1,2,-3},     // Left Chassis Ports (negative port will reverse it!)
+    // {4,-5,6},  // Right Chassis Ports (negative port will reverse it!)
+
+    {-4,5,-6},    // Left Chassis Ports (negative port will reverse it!)
     {1,-2,3},  // Right Chassis Ports (negative port will reverse it!)
 
     20,      // IMU Port
@@ -46,8 +49,8 @@ ez::Drive chassis(
 //  - you should get positive values on the encoders going FORWARD and RIGHT
 // - `2.75` is the wheel diameter
 // - `4.0` is the distance from the center of the wheel to the center of the robot
-ez::tracking_wheel horiz_tracker(18, 2, -2);  // This tracking wheel is perpendicular to the drive wheels
-ez::tracking_wheel vert_tracker(19, 2, 0);   // This tracking wheel is parallel to the drive wheels
+ez::tracking_wheel horiz_tracker(18, 2, 5);  // This tracking wheel is perpendicular to the drive wheels
+ez::tracking_wheel vert_tracker(19, 2, 1);   // This tracking wheel is parallel to the drive wheels
 
 struct AutonList {
   std::string name;
@@ -79,11 +82,11 @@ void initialize() {
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
   //  - change `back` to `front` if the tracking wheel is in front of the midline
   //  - ignore this if you aren't using a horizontal tracker
-  // chassis.odom_tracker_back_set(&horiz_tracker);
+  chassis.odom_tracker_back_set(&horiz_tracker);
   // Look at your vertical tracking wheel and decide if it's to the left or right of the center of the robot
   //  - change `left` to `right` if the tracking wheel is to the right of the centerline
   //  - ignore this if you aren't using a vertical tracker
-  // chassis.odom_tracker_left_set(&vert_tracker);
+  chassis.odom_tracker_left_set(&vert_tracker);
 
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(true);   // Enables modifying the controller curve with buttons on the joysticks
@@ -107,6 +110,8 @@ void initialize() {
   chassis.pid_tuner_disable();
 
   ParkPiston.set_value(true);
+  HoodHookState = true;
+  HoodHook.set_value(HoodHookState);
 
   // ColorSensor.set_led_pwm(100);
   // ColorSensor2.set_led_pwm(100);
@@ -298,15 +303,22 @@ void ChangeScoreState(bool State) {
     ScoreOuttakePiston.set_value(State);
 }
 
-void Score(void* State) {
+void ChangeHookState(bool State) {
+    HoodHookState = State;
+    HoodHook.set_value(State);
+}
+
+void Score(void* State = (void*) scoreStateUp) {
+
     runningScore = true;
     ChangeScoreState(State);
+    ChangeHookState(false);
     ScoreMotor.move_relative(1180, State ? 100 : 50);
     // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
     pros::delay(200);
     while (ScoreMotor.get_actual_velocity() != 0) {
         // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
-	    pros::delay(2);
+	    pros::delay(10);
     }
     pros::delay(500);
     ScoreMotor.move_relative(-1180, 100);
@@ -314,9 +326,9 @@ void Score(void* State) {
     pros::delay(200);
     while (ScoreMotor.get_actual_velocity() != 0) {
         // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
-	    pros::delay(2);
+	    pros::delay(10);
     }
-    printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
+    // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
     runningScore = false;
 }
 
@@ -345,12 +357,12 @@ void opcontrol() {
         {"Intake", pros::E_CONTROLLER_DIGITAL_R1},
         {"Outtake", pros::E_CONTROLLER_DIGITAL_R2},
         {"ScoreUp", pros::E_CONTROLLER_DIGITAL_L1},
-        {"ScoreDown", pros::E_CONTROLLER_DIGITAL_L2},
+        // {"ScoreDown", pros::E_CONTROLLER_DIGITAL_UP},
         {"DoublePark", pros::E_CONTROLLER_DIGITAL_X},
         {"LockMovement+ChangeHeight", pros::E_CONTROLLER_DIGITAL_RIGHT},
         {"CancelDoublePark", pros::E_CONTROLLER_DIGITAL_B},
         {"Tongue", pros::E_CONTROLLER_DIGITAL_Y},
-        {"HoodHook", pros::E_CONTROLLER_DIGITAL_UP}
+        {"HoodHook", pros::E_CONTROLLER_DIGITAL_L2}
   };
 
   while (true) {
@@ -369,22 +381,21 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
 
     // Scoring
-    if (GetKey(Keybinds["ScoreUp"], true) || GetKey(Keybinds["ScoreDown"], true)) {
+    if (GetKey(Keybinds["ScoreUp"], true)) {
         if (!runningScore) {
-            if (GetKey(Keybinds["ScoreUp"], false)) {
-                scoreStateUp = true;
-            } else if (GetKey(Keybinds["ScoreDown"], false)) {
-                scoreStateUp = false;
-            }
+            // if (GetKey(Keybinds["ScoreUp"], false)) {
+            //     scoreStateUp = true;
+            // } else if (GetKey(Keybinds["ScoreDown"], false)) {
+            //     scoreStateUp = false;
+            // }
             
             pros::Task ScoreThread(Score, (void*)scoreStateUp);
         }
     }
 
-
-    if (!runningScore) { // constantly move down
-        ScoreMotor.move(-25);
-    }
+    // if (!runningScore) { // constantly move down
+    //     ScoreMotor.move(-25);
+    // }
 
     // Intaking / Outtaking out front
     if (GetKey(Keybinds["Intake"])) {
