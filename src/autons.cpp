@@ -399,23 +399,19 @@ void test() {
 
   intakeMotor.move(127);
 
-  chassis.pid_odom_set({{{10_in, 26_in}, fwd, 80},}, true);
+  chassis.pid_odom_set({{{10_in, 26_in}, rev, 80},}, true);
   chassis.pid_wait();
 
   // chassis.pid_swing_set(ez::LEFT_SWING, -90_deg, 80);
   // chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-5_in, 26_in}, fwd, 100},}, true);
+  chassis.pid_odom_set({{{-5_in, 26_in}, rev, 100},}, true);
   chassis.pid_wait();
 
-  TonguePiston.set_value(true);
-  // pros::delay(1000);
+  pros::delay(1000);
 
   // chassis.pid_odom_set({{{-10_in, 26_in}, rev, 100},}, true);
   // chassis.pid_wait();
-
-  TonguePiston.set_value(false);
-
 
   // chassis.pid_odom_set({{{-28_in, 44_in}, rev, 100},}, true);
   // chassis.pid_wait();
@@ -428,25 +424,30 @@ void test() {
 
   ChangeScoreState(true);
 
-  chassis.pid_odom_set({{{-31_in, 0_in}, fwd, 80},}, true);
+  chassis.pid_odom_set({{{-32_in, 0_in}, rev, 80},}, true);
   chassis.pid_wait();
 
   chassis.pid_turn_set(180_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-31_in, 22_in}, rev, 80},}, true);
+  chassis.pid_odom_set({{{-30_in, 22_in}, fwd, 80},}, true);
   chassis.pid_wait();
+
+  TonguePiston.set_value(true);
 
   pros::Task ScoreThread(Score, (void*)true);
   pros::delay(500);
 
-  chassis.pid_odom_set({{{-31_in, -7_in}, fwd, 80},}, true);
+  chassis.pid_odom_set({{{-32_in, -10_in}, rev, 10},}, true);
   chassis.pid_wait();
 
   pros::delay(1000);
 
   // chassis.pid_odom_set({{{-31_in, 22_in}, fwd, 80},}, true);
-  chassis.pid_drive_set(29_in, DRIVE_SPEED, true);
+  chassis.pid_odom_set({{{-30_in, 0_in}, fwd, 80},}, true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-19_in, 80, true);
   chassis.pid_wait();
 
   TonguePiston.set_value(false);
@@ -457,22 +458,10 @@ void test() {
 }
 
 void Skills() {
-  chassis.pid_drive_set(-24_in, DRIVE_SPEED, true);
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+  chassis.pid_drive_set(60_in, 127, true);
   chassis.pid_wait();
-
-  chassis.pid_turn_set(90_deg, TURN_SPEED);
-  chassis.pid_wait();
-
-  chassis.pid_drive_set(-12_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  chassis.pid_drive_set(40_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  chassis.pid_drive_set(-12_in, DRIVE_SPEED, true);
-  chassis.pid_wait();
-
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_drive_set(-5_in, 80, true);
   chassis.pid_wait();
 }
 
