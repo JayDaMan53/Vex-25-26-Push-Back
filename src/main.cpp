@@ -102,12 +102,12 @@ void initialize() {
 
   // Initialize chassis and auton selector
   chassis.initialize();
-  // ez::as::initialize();
-  init_AutoSelect();
+  ez::as::initialize();
+  // init_AutoSelect();
 
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 
-  chassis.pid_tuner_disable();
+  chassis.pid_tuner_enable();
 
   ParkPiston.set_value(true);
   HoodHookState = true;
@@ -366,6 +366,10 @@ void opcontrol() {
   };
 
   while (true) {
+
+    if (master.get_digital_new_press(DIGITAL_B)) 
+        diddy();
+
     // enableColorSort = false;
 
     // Gives you some extras to make EZ-Template ezier

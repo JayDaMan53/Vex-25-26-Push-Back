@@ -42,3 +42,4 @@ void PureTest();
 
 void test();
 void Skills();
+void diddy();
