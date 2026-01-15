@@ -31,12 +31,20 @@ extern bool HoodHookState;
 ///
 void default_constants() {
   // P, I, D, and Start I
-  chassis.pid_drive_constants_set(18.0, 0.01, 200.0);         // Fwd/rev constants, used for odom and non odom motions
-  chassis.pid_heading_constants_set(8.5, 0.0, 40.0);        // Holds the robot straight while going forward without odom
-  chassis.pid_turn_constants_set(5.0, 0.01, 80.0, 10.0);     // Turn in place constants
+
+  chassis.pid_drive_constants_set(20.0, 0.0, 100.0);         // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_heading_constants_set(11.0, 0.0, 20.0);        // Holds the robot straight while going forward without odom
+  chassis.pid_turn_constants_set(3.0, 0.05, 20.0, 15.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
   chassis.pid_odom_angular_constants_set(6.5, 0.0, 52.5);    // Angular control for odom motions
   chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
+
+  // chassis.pid_drive_constants_set(6.0, 0.05, 25.0);         // Fwd/rev constants, used for odom and non odom motions
+  // chassis.pid_heading_constants_set(8.5, 0.0, 40.0);        // Holds the robot straight while going forward without odom
+  // chassis.pid_turn_constants_set(4.0, 0.00, 100.0, 20.0);     // Turn in place constants
+  // chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
+  // chassis.pid_odom_angular_constants_set(5.8, 0.0, 32.5);    // Angular control for odom motions
+  // chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
 
   // Exit conditions
   chassis.pid_turn_exit_condition_set(90_ms, 1_deg, 250_ms, 7_deg, 500_ms, 500_ms);
@@ -394,18 +402,17 @@ extern void Score(void* State);
 
 void test() {
   chassis.odom_y_flip(true);
-  chassis.odom_x_flip(true);
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
   intakeMotor.move(127);
 
-  chassis.pid_odom_set({{{10_in, 26_in}, rev, 80},}, true);
+  chassis.pid_odom_set({{{10_in, 26_in}, rev, 127},}, true);
   chassis.pid_wait();
 
   // chassis.pid_swing_set(ez::LEFT_SWING, -90_deg, 80);
   // chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-15_in, 26_in}, rev, 70},}, true);
+  chassis.pid_odom_set({{{-15_in, 24_in}, rev, 100},}, true);
   chassis.pid_wait();
 
   pros::delay(1000);
@@ -424,13 +431,13 @@ void test() {
 
   ChangeScoreState(true);
 
-  chassis.pid_odom_set({{{-31_in, 0_in}, rev, 80},}, true);
+  chassis.pid_odom_set({{{-31_in, 0_in}, rev, 127},}, true);
   chassis.pid_wait();
 
   chassis.pid_turn_set(180_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-30_in, 22_in}, fwd, 80},}, true);
+  chassis.pid_odom_set({{{-30_in, 22_in}, fwd, 127},}, true);
   chassis.pid_wait();
 
   TonguePiston.set_value(true);
@@ -438,13 +445,13 @@ void test() {
   pros::Task ScoreThread(Score, (void*)true);
   pros::delay(500);
 
-  chassis.pid_odom_set({{{-31_in, -0_in, }, rev, 80},}, true);
+  chassis.pid_odom_set({{{-35_in, -10_in}, rev, 80},}, true);
   chassis.pid_wait();
 
   pros::delay(1000);
 
   // chassis.pid_odom_set({{{-31_in, 22_in}, fwd, 80},}, true);
-  chassis.pid_odom_set({{{-30_in, 22_in}, fwd, 80},}, true);
+   chassis.pid_odom_set({{{-30_in, 22_in}, fwd, 127},}, true);
   chassis.pid_wait();
 
   TonguePiston.set_value(false);
@@ -452,6 +459,26 @@ void test() {
   intakeMotor.move(0);
   pros::Task ScoreThreadAgain(Score, (void*)true);
   pros::delay(500);
+}
+
+void RedLeft() {
+  chassis.odom_x_flip(true);
+  test();
+}
+
+void RedRight() {
+  chassis.odom_theta_flip();
+  test();
+}
+
+void BlueLeft() {
+  chassis.odom_theta_flip();
+  test();
+}
+
+void BlueRight() {
+  chassis.odom_x_flip(true);
+  test();
 }
 
 void Skills() {

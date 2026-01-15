@@ -28,10 +28,10 @@ struct AutonOption {
 
 AutonOption AutonOptions[] = {
   // Normal Autons
-  // {"Red Left - Normal", RedLeft},
-  // {"Red Right - Normal", RedRight},
-  // {"Blue Left - Normal", BlueLeft},
-  // {"Blue Right - Normal", BlueRight},
+  {"Red Left - Normal", RedLeft},
+  {"Red Right - Normal", RedRight},
+  {"Blue Left - Normal", BlueLeft},
+  {"Blue Right - Normal", BlueRight},
 
   // // No-Interference Autons
   // {"Red Left - No-Interference", RedLeft_Alt},
@@ -43,7 +43,7 @@ AutonOption AutonOptions[] = {
   // {"Do Nothing", DoNothing},
 
   // // Skills Auton
-  // {"Skills Auton", SkillsAuton_short}
+  {"Skills Auton", Skills}
 };
 
 // Auton Functions
