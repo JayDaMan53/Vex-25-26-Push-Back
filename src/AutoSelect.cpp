@@ -86,7 +86,7 @@ void RunSelected() {
       } else if (AutonType == 1) { // No-Interference
         autoIndex = 7;
       } else if (AutonType == 2) {
-        autoIndex = 8;
+        autoIndex = 4;
       }
     }
   } else if (TeamColor == 0) { // Skills
