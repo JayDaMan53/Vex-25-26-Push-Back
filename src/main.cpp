@@ -155,7 +155,7 @@ void autonomous() {
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Set the current position, you can start at a specific position with this
-  chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
+  chassis.drive_brake_set(MOTOR_BRAKE_BRAKE);  // Set motors to hold.  This helps autonomous consistency
 
   /*
   Odometry and Pure Pursuit are not magic
@@ -186,8 +186,8 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  // diddy();
-  test();
+  diddy();
+  // test();
   // RedLeft();
 
   // RedLeft(false);

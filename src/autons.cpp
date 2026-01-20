@@ -506,7 +506,7 @@ void diddy() {
   pros::delay(500); 
 
   //drive to match loader
-  chassis.pid_drive_set(45_in, 110, true);
+  chassis.pid_drive_set(46_in, 110, true);
   chassis.pid_wait();
 
   //tongue and move up or sm
@@ -514,19 +514,18 @@ void diddy() {
   ChangeScoreState(true);
 
   //turn to match loader
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_turn_set(-88_deg, TURN_SPEED);
   chassis.pid_wait();
 
   //match load
-  chassis.pid_drive_set(-12_in, 127, true);
+  chassis.pid_drive_set(-14_in, 127, true);
   chassis.pid_wait();
-  pros::delay(250); 
   
   //drive to goal
   chassis.pid_drive_set(30_in, 60, true);
-  chassis.pid_wait();
-  
+  chassis.pid_wait_until(15_in);
   TonguePiston.set_value(0);
+  chassis.pid_wait();
 
   //score
   Score((void*)true);
@@ -535,24 +534,25 @@ void diddy() {
 
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
   
-  //drive forwards a lil bit
-  chassis.pid_drive_set(-17_in, 80, true);
+  // drive forwards a lil bit
+  chassis.pid_drive_set(-22_in, 50, true);
   chassis.pid_wait();
   intakeMotor.move(127);
 
   chassis.odom_xyt_set(0_in, 0_in, -90_deg);
 
   //turn to blocks
-  chassis.pid_turn_set(25_deg, 50);
+  chassis.pid_turn_set(38_deg, 100);
   chassis.pid_wait();
 
   //drive forwards to block
   chassis.pid_drive_set(-34_in, 127, true);
+  chassis.pid_wait_until(-30_in);
   TonguePiston.set_value(1);
   chassis.pid_wait();
 
-  //drive forwards to goola
-  chassis.pid_drive_set(-16_in, 127, true);
+  //drive forwards to gulag
+  chassis.pid_drive_set(-18_in, 127, true);
   TonguePiston.set_value(0);
   chassis.pid_wait();
   intakeMotor.move(-127);
