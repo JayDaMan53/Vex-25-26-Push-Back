@@ -412,7 +412,7 @@ void test() {
   // chassis.pid_swing_set(ez::LEFT_SWING, -90_deg, 80);
   // chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-15_in, 24_in}, rev, 100},}, true);
+  chassis.pid_odom_set({{{-13_in, 24_in}, rev, 100},}, true);
   chassis.pid_wait();
 
   pros::delay(1000);
@@ -431,29 +431,34 @@ void test() {
 
   ChangeScoreState(true);
 
-  chassis.pid_odom_set({{{-32_in, 0_in}, rev, 127},}, true);
+  chassis.pid_odom_set({{{-33_in, 0_in}, rev, 127},}, true);
   chassis.pid_wait();
 
   chassis.pid_turn_set(180_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-32_in, 22_in}, fwd, 127},}, true);
+  chassis.pid_odom_set({{{-33_in, 25_in}, fwd, 127},}, true);
   chassis.pid_wait();
 
-  chassis.odom_xyt_set(-32_in, 22_in, 180_deg);
+  chassis.odom_xyt_set(-33_in, 25_in, 180_deg);
 
   TonguePiston.set_value(true);
 
   pros::Task ScoreThread(Score, (void*)true);
   pros::delay(500);
 
-  chassis.pid_odom_set({{{-32_in, -5_in}, rev, 80},}, true);
+  chassis.pid_odom_set({{{-33_in, -5_in}, rev, 80},}, true);
   chassis.pid_wait();
 
   pros::delay(1000);
 
+  chassis.odom_xyt_set(-33_in, -5_in, 180_deg);
+
   // chassis.pid_odom_set({{{-31_in, 22_in}, fwd, 80},}, true);
-  chassis.pid_odom_set({{{-32_in, 22_in}, fwd, 127},}, true);
+  // chassis.pid_odom_set({{{-33_in, 25_in, 180_deg}, fwd, 127},}, true);
+  // chassis.pid_wait();
+
+  chassis.pid_drive_set(30_in, 127, true, true);
   chassis.pid_wait();
 
   TonguePiston.set_value(false);

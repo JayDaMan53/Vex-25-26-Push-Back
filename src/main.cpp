@@ -186,8 +186,8 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  diddy();
-  // test();
+  // diddy();
+  test();
   // RedLeft();
 
   // RedLeft(false);
@@ -374,6 +374,7 @@ void opcontrol() {
 
     if (!LockMovement) {
       chassis.opcontrol_tank();  // Tank control
+      // chassis.opcontrol_arcade_flipped(ez::SINGLE);
     }
 
     // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
