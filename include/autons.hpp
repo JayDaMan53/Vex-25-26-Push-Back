@@ -43,3 +43,5 @@ void PureTest();
 void test();
 void Skills();
 void diddy();
+void diddyskills();
+void diddyskillsfinal();

@@ -1,6 +1,7 @@
 #include <future>
 #include "EZ-Template/util.hpp"
 #include "main.h"
+#include "pros/imu.h"
 #include "subsystems.hpp"
 
 /////
@@ -400,6 +401,7 @@ void measure_offsets() {
 extern void ChangeScoreState(bool State);
 extern void Score(void* State);
 
+// MARK: bad auto
 void test() {
   chassis.odom_y_flip(true);
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
@@ -496,6 +498,7 @@ void Skills() {
   chassis.pid_wait();
 }
 
+// MARK: Diddy
 void diddy() {
   //reset
   chassis.odom_y_flip(true);
@@ -562,4 +565,235 @@ void diddy() {
   chassis.pid_wait();
   intakeMotor.move(-127);
 
+}
+
+
+//
+//skills
+//
+
+
+// MARK: Diddy Skills
+void diddyskills() {
+  //reset
+  chassis.odom_y_flip(true);
+  chassis.odom_x_flip(true);
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //intake
+  intakeMotor.move(127);
+
+  //drive to match loader
+  chassis.pid_drive_set(35, 80, true);
+  chassis.pid_wait();
+
+  //tongue and move up or sm
+  TonguePiston.set_value(true);
+  ChangeScoreState(true);
+
+  //turn to match loader
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //match load
+  chassis.pid_drive_set(-12, 50, true);
+  chassis.pid_wait();
+  pros::delay(2000); 
+  
+  //drive back a bit
+  chassis.pid_drive_set(10_in, 127, true);
+  chassis.pid_wait();
+  TonguePiston.set_value(false);
+
+  //turn
+  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //drib to wall
+  chassis.pid_drive_set(30, 127, true);
+  chassis.pid_wait();
+
+  //reset
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //scooch forwards
+  chassis.pid_drive_set(-1, 127, true);
+  chassis.pid_wait();
+
+  //turn
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //drib past goal
+  chassis.pid_drive_set(90, 127, true);
+  chassis.pid_wait();
+
+  //turn
+  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_wait();
+  
+  //drib to wall
+  chassis.pid_drive_set(30, 127, true);
+  chassis.pid_wait();
+
+  //reset
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //scooch forwards
+  chassis.pid_drive_set(-15, 127, true);
+  chassis.pid_wait();
+
+  //turn
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //drive into goal
+  chassis.pid_drive_set(15, 127, true);
+  chassis.pid_wait();
+  
+  //score
+  pros::delay(2000); 
+  TonguePiston.set_value(true);
+
+  //reset alignment to goal
+  chassis.pid_drive_set(15, 127, true);
+  chassis.pid_wait();
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //match load
+  chassis.pid_drive_set(-4, 50, true);
+  chassis.pid_wait();
+  chassis.pid_turn_set(91_deg, TURN_SPEED);
+  chassis.pid_wait();
+  chassis.pid_drive_set(-24, 50, true);
+  chassis.pid_wait();
+  pros::delay(2000); 
+  
+  //drive back to goal
+  chassis.pid_drive_set(4, 50, true);
+  chassis.pid_wait();
+  TonguePiston.set_value(false);
+  chassis.pid_drive_set(24, 50, true);
+  chassis.pid_wait();
+
+  //score
+  Score((void*)true);
+  pros::delay(1000); 
+  TonguePiston.set_value(true);
+
+  //reset alignment to goal
+
+  //match load
+  chassis.pid_drive_set(-26_in, 50, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90_deg, 60);
+  chassis.pid_wait();
+
+  pros::delay(1000);
+  
+  //drive back to goal
+  chassis.pid_drive_set(4_in, 50, true);
+  chassis.pid_wait();
+  TonguePiston.set_value(false);
+  chassis.pid_drive_set(24_in, 50, true);
+  chassis.pid_wait();
+
+  //score
+  Score((void*)true);
+  pros::delay(1000);
+
+  chassis.pid_drive_set(-12_in, 50, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90_deg, 60);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(12_in, 50, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(100_in, 50, true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-10_in, 127, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-45_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(24_in, 127, true);
+  chassis.pid_wait(); 
+}
+
+// MARK: Diddy Skills Final
+void diddyskillsfinal() {
+
+  chassis.odom_xyt_set(0_in, 0_in, -90_deg);
+  
+  //up
+  ChangeScoreState(true);
+
+  chassis.pid_drive_set(24_in, 50, true);
+  chassis.pid_wait();
+
+  //score
+  Score((void*)true);
+  pros::delay(1000); 
+  TonguePiston.set_value(true);
+
+  //reset alignment to goal
+
+  //match load
+  chassis.pid_drive_set(-26_in, 50, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90_deg, 60);
+  chassis.pid_wait();
+
+  pros::delay(1000);
+  
+  //drive back to goal
+  chassis.pid_drive_set(4_in, 50, true);
+  chassis.pid_wait();
+  TonguePiston.set_value(false);
+  chassis.pid_drive_set(24_in, 50, true);
+  chassis.pid_wait();
+
+  //score
+  Score((void*)true);
+  pros::delay(1000);
+
+  chassis.pid_drive_set(-12_in, 50, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90_deg, 60);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(0_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(12_in, 50, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(100_in, 50, true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-10_in, 127, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-45_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(24_in, 127, true);
+  chassis.pid_wait();
 }
