@@ -2,6 +2,7 @@
 #include "EZ-Template/util.hpp"
 #include "main.h"
 #include "pros/imu.h"
+#include "pros/motors.hpp"
 #include "subsystems.hpp"
 
 /////
@@ -24,6 +25,7 @@ extern pros::Optical ColorSensor;
 extern pros::Optical ColorSensor2;
 
 extern pros::Motor intakeMotor;
+extern pros::Motor ScoreMotor;
 
 extern bool HoodHookState;
 
@@ -795,5 +797,62 @@ void diddyskillsfinal() {
   chassis.pid_wait();
 
   chassis.pid_drive_set(24_in, 127, true);
+  chassis.pid_wait();
+}
+
+void Oblock() {
+  //reset
+  chassis.odom_y_flip(true);
+  chassis.odom_x_flip(true);
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //intake
+  intakeMotor.move(127);
+
+  //drive to match loader
+  chassis.pid_drive_set(35, 80, true);
+  chassis.pid_wait();
+
+  //tongue and move up or sm
+  TonguePiston.set_value(true);
+  ChangeScoreState(true);
+
+  //turn to match loader
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //match load
+  chassis.pid_drive_set(-13.5, 50, true);
+  chassis.pid_wait();
+  
+  //drive back a bit
+  chassis.pid_drive_set(10_in, 127, true);
+  chassis.pid_wait();
+  TonguePiston.set_value(false);
+
+  chassis.pid_drive_set(18_in, 127, true);
+  chassis.pid_wait();
+
+  HoodHook.set_value(false);
+  Score((void*)true);
+  pros::delay(1000);
+
+  chassis.odom_y_flip(true);
+  chassis.odom_x_flip(true);
+  chassis.odom_xyt_set(0_in, 0_in, -90_deg);
+
+  chassis.pid_drive_set(-10_in, 127, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-45_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(-17_in, 127, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(40_in, 127, true);
   chassis.pid_wait();
 }

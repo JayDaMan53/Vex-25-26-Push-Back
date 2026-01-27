@@ -40,7 +40,7 @@ ez::Drive chassis(
     // {-4,5,-6},    // Left Chassis Ports (negative port will reverse it!)
     // {1,-2,3},  // Right Chassis Ports (negative port will reverse it!)
 
-    20,      // IMU Port
+    19,      // IMU Port
     3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     450);   // Wheel RPM = cartridge * (motor gear / wheel gear)
 
@@ -186,7 +186,8 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  diddyskills();
+  // diddyskills();
+  Oblock();
   // test();
   // RedLeft();
 
@@ -328,6 +329,7 @@ void Score(void* State = (void*) scoreStateUp) {
         // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
 	    pros::delay(10);
     }
+    ScoreMotor.brake();
     // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
     runningScore = false;
 }
