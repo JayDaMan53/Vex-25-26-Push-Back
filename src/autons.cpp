@@ -810,7 +810,7 @@ void Oblock() {
   intakeMotor.move(127);
 
   //drive to match loader
-  chassis.pid_drive_set(35, 80, true);
+  chassis.pid_drive_set(36, 80, true);
   chassis.pid_wait();
 
   //tongue and move up or sm
@@ -821,20 +821,23 @@ void Oblock() {
   chassis.pid_turn_set(-90_deg, TURN_SPEED);
   chassis.pid_wait();
 
+  ChangeScoreState(true);
+
   //match load
-  chassis.pid_drive_set(-13.5, 50, true);
-  chassis.pid_wait();
+  chassis.pid_drive_set(-13_in, 80, true);
+  pros::delay(1000);
+
+  ChangeScoreState(true);
   
   //drive back a bit
-  chassis.pid_drive_set(10_in, 127, true);
+  chassis.pid_drive_set(28_in, 50, true);
   chassis.pid_wait();
   TonguePiston.set_value(false);
 
-  chassis.pid_drive_set(18_in, 127, true);
-  chassis.pid_wait();
+  ChangeScoreState(true);
 
   HoodHook.set_value(false);
-  Score((void*)true);
+  ScoreMotor.move(127);
   pros::delay(1000);
 
   chassis.odom_y_flip(true);
@@ -844,8 +847,13 @@ void Oblock() {
   chassis.pid_drive_set(-10_in, 127, true);
   chassis.pid_wait();
 
+  ChangeScoreState(true);
+  intakeMotor.move(-127);
+
   chassis.pid_turn_set(-45_deg, TURN_SPEED);
   chassis.pid_wait();
+
+  ChangeScoreState(true);
 
   chassis.pid_drive_set(-17_in, 127, true);
   chassis.pid_wait();
@@ -855,4 +863,8 @@ void Oblock() {
 
   chassis.pid_drive_set(40_in, 127, true);
   chassis.pid_wait();
+
+  ScoreMotor.move(-127);
+  pros::delay(1000);
+  ScoreMotor.brake();
 }
