@@ -186,8 +186,8 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  // diddyskills();
-  Oblock();
+  diddyskills();
+  // Oblock();
   // test();
   // RedLeft();
 

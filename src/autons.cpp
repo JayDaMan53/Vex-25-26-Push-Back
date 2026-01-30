@@ -680,7 +680,7 @@ void diddyskills() {
   chassis.pid_wait();
 
   //score
-  Score((void*)true);
+  // Score((void*)true);
   pros::delay(1000); 
   TonguePiston.set_value(true);
 
@@ -703,7 +703,7 @@ void diddyskills() {
   chassis.pid_wait();
 
   //score
-  Score((void*)true);
+  // Score((void*)true);
   pros::delay(1000);
 
   chassis.pid_drive_set(-12_in, 50, true);
