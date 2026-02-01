@@ -1,5 +1,6 @@
 #include <array>
 #include <cstddef>
+#include <string>
 #include <type_traits>
 
 #include "liblvgl/widgets/lv_label.h"
@@ -45,6 +46,13 @@ AutonOption AutonOptions[] = {
   // // Skills Auton
   {"Skills Auton", Skills}
 };
+
+void RunningTick() {
+  lv_label_set_text_fmt(objects.robot_battery_value, "%d%%", (int)pros::battery::get_capacity());
+  lv_label_set_text(objects.robot_imu_value, chassis.drive_imu_calibrated() ? "True" : "False");
+  lv_obj_set_style_text_color(objects.robot_imu_value, chassis.drive_imu_calibrated() ? lv_color_hex(0x00FF00) : lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_color(objects.robot_battery_value, (int)pros::battery::get_capacity() >= 75 ? lv_color_hex(0x00FF00) : (int)pros::battery::get_capacity() >= 25 ? lv_color_hex(0xFFFF00) : lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+}
 
 // Auton Functions
 void RunSelected() {
@@ -130,10 +138,11 @@ extern "C" void action_change_feild_side(lv_event_t * e) {
 }
 
 extern "C" void action_start_auton(lv_event_t * e) {
-  RunSelected();
+  // RunSelected();
 }
 
 extern "C" void action_change_auto_type(lv_event_t * e) {
   AutonType = (int)(intptr_t)lv_event_get_user_data(e);
-  AutoSelect_loadScreen(SCREEN_ID_WAITING);
+  // AutoSelect_loadScreen(SCREEN_ID_WAITING);
+  RunSelected();
 }

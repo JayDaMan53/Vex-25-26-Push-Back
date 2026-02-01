@@ -440,6 +440,8 @@ void opcontrol() {
         HoodHook.set_value(HoodHookState);
     }
 
+    RunningTick();
+
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
 }

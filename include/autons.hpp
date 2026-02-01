@@ -46,3 +46,4 @@ void diddy();
 void diddyskills();
 void diddyskillsfinal();
 void Oblock();
+void thuckuna();

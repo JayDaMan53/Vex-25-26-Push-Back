@@ -1,8 +1,9 @@
 #ifndef EEZ_LVGL_UI_SCREENS_H
 #define EEZ_LVGL_UI_SCREENS_H
 
-#include "liblvgl/lvgl.h"
 
+
+#include "liblvgl/core/lv_obj.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,15 +40,12 @@ typedef struct _objects_t {
     lv_obj_t *content_4;
     lv_obj_t *body;
     lv_obj_t *running_label;
-    lv_obj_t *exit;
-    lv_obj_t *arc;
-    lv_obj_t *timer;
-    lv_obj_t *motor_temps_label;
-    lv_obj_t *color_sort_label;
     lv_obj_t *robot_battery_label;
-    lv_obj_t *motor_temps_value;
-    lv_obj_t *color_sort_value;
     lv_obj_t *robot_battery_value;
+    lv_obj_t *imu_calabrated;
+    lv_obj_t *robot_imu_value;
+    lv_obj_t *auto_photo;
+    lv_obj_t *cat;
 } objects_t;
 
 extern objects_t objects;

@@ -9,3 +9,4 @@ extern int AutonType;
 
 void RunSelected();
 void RunMatch();
+void RunningTick();

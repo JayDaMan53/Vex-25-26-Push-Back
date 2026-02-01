@@ -14,7 +14,6 @@
 
 
 
-
 #if defined(EEZ_FOR_LVGL)
 
 void ui_init() {
