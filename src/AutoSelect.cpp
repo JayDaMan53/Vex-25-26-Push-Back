@@ -1,3 +1,4 @@
+#include <string.h>
 #include <array>
 #include <cstddef>
 #include <string>
@@ -20,7 +21,9 @@ bool RunningAuto = false;
 
 int TeamColor = 1; // 1 = Red, 2 = Blue, 0 = Skills
 int TeamSide = 0; // 0 = Left, 1 = Right
-int AutonType = 0; // 0 = Normal, 1 = no-interference, 2 = Skills
+int AutonType = 0; // 0 = 7, 1 = 4, 2 = 0, 3 = 27, 4 = SAWP
+
+int autoIndex = 10; 
 
 struct AutonOption {
   std::string name;
@@ -28,23 +31,29 @@ struct AutonOption {
 };
 
 AutonOption AutonOptions[] = {
-  // Normal Autons
-  {"Red Left - Normal", RedLeft},
-  {"Red Right - Normal", RedRight},
-  {"Blue Left - Normal", BlueLeft},
-  {"Blue Right - Normal", BlueRight},
+  // 7 Block Autons
+  {"Red Left - 7 Block", RedLeft}, // 1 0 0
+  {"Red Right - 7 Block", RedRight}, // 1 1 0
+  {"Blue Left - 7 Block", BlueLeft}, // 2 0 0
+  {"Blue Right - 7 Block", BlueRight}, // 2 1 0
 
-  // // No-Interference Autons
-  // {"Red Left - No-Interference", RedLeft_Alt},
-  // {"Red Right - No-Interference", RedRight_Alt},
-  // {"Blue Left - No-Interference", BlueLeft_Alt},
-  // {"Blue Right - No-Interference", BlueRight_Alt},
+  // 4 Block Autons
+  {"Red Left - 4 Block", NULL}, // 1 0 1
+  {"Red Right - 4 Block", NULL}, // 1 1 1
+  {"Blue Left - 4 Block", NULL}, // 2 0 1
+  {"Blue Right - 4 Block", NULL}, // 2 1 1
+
+  // 2 Goal 7 Block Auton
+  {"2 Goal 7 Block", NULL}, // any any 3
+
+  // SAWP
+  {"Solo Auto Win Point", NULL}, // any any 4
 
   // // Do nothing Auton
-  // {"Do Nothing", DoNothing},
+  {"Do Nothing - 0 Block", NULL}, // any any 2
 
   // // Skills Auton
-  {"Skills Auton", Skills}
+  {"Skills Auto", NULL} // 0 skip skip
 };
 
 void RunningTick() {
@@ -55,63 +64,64 @@ void RunningTick() {
 }
 
 // Auton Functions
-void RunSelected() {
-  RunningAuto = true;
+void GetSelected() {
   AutoSelect_loadScreen(SCREEN_ID_RUNNING);
 
-  int autoIndex = 0;
+  // Skills overrides everything
+  if (TeamColor == 0) {
+    autoIndex = 11; // "Skills Auto"
+  } else {
+    switch (AutonType) {
+      case 0: { // 7 Block
+        // Red: 0-1, Blue: 2-3, add +1 if Right
+        int base = (TeamColor == 1) ? 0 : 2;
+        autoIndex = base + (TeamSide == 1 ? 1 : 0);
+        break;
+      }
 
-  if (TeamColor == 1) { // Red Team
-    if (TeamSide == 0) { // Left Side
-      if (AutonType == 0) { // Normal
-        autoIndex = 0;
-      } else if (AutonType == 1) { // No-Interference
-        autoIndex = 4;
-      } else if (AutonType == 2) {
-        autoIndex = 8;
+      case 1: { // 4 Block
+        // Red: 4-5, Blue: 6-7, add +1 if Right
+        int base = (TeamColor == 1) ? 4 : 6;
+        autoIndex = base + (TeamSide == 1 ? 1 : 0);
+        break;
       }
-    } else if (TeamSide == 1) { // Right Side
-      if (AutonType == 0) { // Normal
-        autoIndex = 1;
-      } else if (AutonType == 1) { // No-Interference
-        autoIndex = 5;
-      } else if (AutonType == 2) {
+
+      case 2: // 0 Block (Do Nothing)
+        autoIndex = 10;
+        break;
+
+      case 3: // 2 Goal 7 Block (any color/side)
         autoIndex = 8;
-      }
+        break;
+
+      case 4: // SAWP (any color/side)
+        autoIndex = 9;
+        break;
+
+      default:
+        autoIndex = 10;
+        break;
     }
-  } else if (TeamColor == 2) { // Blue Team
-    if (TeamSide == 0) { // Left Side
-      if (AutonType == 0) { // Normal
-        autoIndex = 2;
-      } else if (AutonType == 1) { // No-Interference
-        autoIndex = 6;
-      } else if (AutonType == 2) {
-        autoIndex = 8;
-      }
-    } else if (TeamSide == 1) { // Right Side
-      if (AutonType == 0) { // Normal
-        autoIndex = 3;
-      } else if (AutonType == 1) { // No-Interference
-        autoIndex = 7;
-      } else if (AutonType == 2) {
-        autoIndex = 4;
-      }
-    }
-  } else if (TeamColor == 0) { // Skills
-    autoIndex = 9;
   }
 
-  lv_label_set_text(objects.running_label, ("Running: " + AutonOptions[autoIndex].name).c_str());
+  lv_label_set_text(objects.running_label, ("Running: \n" + AutonOptions[autoIndex].name).c_str());
+  if (AutonOptions[autoIndex].func == NULL) {
+    // change_color_theme(THEME_ID_SKILLS);
+    // AutoSelect_loadScreen(SCREEN_ID_TEAM_COLOR);
+  }
+}
+
+void RunSelected() {
+  RunningAuto = true;
   if (AutonOptions[autoIndex].func != NULL) {
     AutonOptions[autoIndex].func();
   } else {
-    change_color_theme(THEME_ID_SKILLS);
-    AutoSelect_loadScreen(SCREEN_ID_TEAM_COLOR);
+    lv_label_set_text(objects.running_label, ("Auto Not Found: \n" + AutonOptions[autoIndex].name).c_str());
   }
 }
 
 void RunMatch() {
-  lv_label_set_text(objects.running_label, "Running: Match Control");
+  lv_label_set_text(objects.running_label, "Running: \nMatch Control");
   AutoSelect_loadScreen(SCREEN_ID_RUNNING);
 }
 
@@ -126,7 +136,7 @@ extern "C" void action_change_team_color(lv_event_t * e) {
   TeamColor = (int)(intptr_t)lv_event_get_user_data(e);
   change_color_theme(TeamColor);
   if (TeamColor == 0) {
-    AutoSelect_loadScreen(SCREEN_ID_WAITING);
+    GetSelected();
   } else {
     AutoSelect_loadScreen(SCREEN_ID_FEILD_SIDE);
   }
@@ -144,5 +154,5 @@ extern "C" void action_start_auton(lv_event_t * e) {
 extern "C" void action_change_auto_type(lv_event_t * e) {
   AutonType = (int)(intptr_t)lv_event_get_user_data(e);
   // AutoSelect_loadScreen(SCREEN_ID_WAITING);
-  RunSelected();
+  GetSelected();
 }

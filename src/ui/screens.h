@@ -28,9 +28,11 @@ typedef struct _objects_t {
     lv_obj_t *header_3;
     lv_obj_t *header_label_3;
     lv_obj_t *content_3;
-    lv_obj_t *normal;
-    lv_obj_t *no_interference;
-    lv_obj_t *do_nothing;
+    lv_obj_t *option_a;
+    lv_obj_t *option_b;
+    lv_obj_t *option_d;
+    lv_obj_t *option_c;
+    lv_obj_t *option_e;
     lv_obj_t *content_2;
     lv_obj_t *obj0;
     lv_obj_t *loading;
