@@ -46,4 +46,8 @@ void diddy();
 void diddyskills();
 void diddyskillsfinal();
 void Oblock();
+void OblockMirror();
 void thuckuna();
+void littlesaintjames();
+void littlesaintjamesMirror();
+void diddyMirror();

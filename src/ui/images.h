@@ -9,6 +9,11 @@ extern "C" {
 
 extern const lv_img_dsc_t img_auto;
 extern const lv_img_dsc_t img_cat;
+extern const lv_img_dsc_t img_ssgw2;
+extern const lv_img_dsc_t img_skills;
+extern const lv_img_dsc_t img_dc;
+extern const lv_img_dsc_t img_sawp;
+extern const lv_img_dsc_t img_ssgw;
 
 #ifndef EXT_IMG_DESC_T
 #define EXT_IMG_DESC_T

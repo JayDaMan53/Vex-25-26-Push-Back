@@ -1,9 +1,11 @@
 #include <string.h>
 #include <array>
 #include <cstddef>
+#include <cstdio>
 #include <string>
 #include <type_traits>
 
+#include "liblvgl/core/lv_obj.h"
 #include "liblvgl/widgets/lv_label.h"
 #include "main.h"
 #include "ui/screens.h"
@@ -12,6 +14,7 @@
 // auto selector
 extern "C" {
   #include "ui/ui.h"
+  #include "ui/images.h"
 }
 
 // Auton Selector Vars
@@ -28,32 +31,33 @@ int autoIndex = 10;
 struct AutonOption {
   std::string name;
   std::function<void()> func;
+  std::optional<lv_obj_t*> ImgID;
 };
 
 AutonOption AutonOptions[] = {
   // 7 Block Autons
-  {"Red Left - 7 Block", RedLeft}, // 1 0 0
-  {"Red Right - 7 Block", RedRight}, // 1 1 0
-  {"Blue Left - 7 Block", BlueLeft}, // 2 0 0
-  {"Blue Right - 7 Block", BlueRight}, // 2 1 0
+  {"Red Left - 7 Block", RedLeft, objects.ssgw2}, // 1 0 0
+  {"Red Right - 7 Block", RedRight, objects.ssgw2}, // 1 1 0
+  {"Blue Left - 7 Block", BlueLeft, objects.ssgw2}, // 2 0 0
+  {"Blue Right - 7 Block", BlueRight, objects.ssgw2}, // 2 1 0
 
   // 4 Block Autons
-  {"Red Left - 4 Block", NULL}, // 1 0 1
-  {"Red Right - 4 Block", NULL}, // 1 1 1
-  {"Blue Left - 4 Block", NULL}, // 2 0 1
-  {"Blue Right - 4 Block", NULL}, // 2 1 1
+  {"Red Left - 4 Block", NULL, objects.ssgw}, // 1 0 1
+  {"Red Right - 4 Block", NULL, objects.ssgw}, // 1 1 1
+  {"Blue Left - 4 Block", NULL, objects.ssgw}, // 2 0 1
+  {"Blue Right - 4 Block", NULL, objects.ssgw}, // 2 1 1
 
   // 2 Goal 7 Block Auton
-  {"2 Goal 7 Block", NULL}, // any any 3
+  {"2 Goal 7 Block", NULL, objects.dc}, // any any 3
 
   // SAWP
-  {"Solo Auto Win Point", NULL}, // any any 4
+  {"Solo Auto Win Point", NULL, objects.sawp}, // any any 4
 
   // // Do nothing Auton
   {"Do Nothing - 0 Block", NULL}, // any any 2
 
   // // Skills Auton
-  {"Skills Auto", NULL} // 0 skip skip
+  {"Skills Auto", NULL, objects.skills_auto} // 0 skip skip
 };
 
 void RunningTick() {
@@ -105,9 +109,17 @@ void GetSelected() {
   }
 
   lv_label_set_text(objects.running_label, ("Running: \n" + AutonOptions[autoIndex].name).c_str());
+
+  // showObject(*AutonOptions[autoIndex].ImgID);
+
+  if (*AutonOptions[autoIndex].ImgID) {
+    showObject(*AutonOptions[autoIndex].ImgID);
+  }
+
   if (AutonOptions[autoIndex].func == NULL) {
     // change_color_theme(THEME_ID_SKILLS);
     // AutoSelect_loadScreen(SCREEN_ID_TEAM_COLOR);
+    lv_label_set_text(objects.running_label, ("Auto Not Found: \n" + AutonOptions[autoIndex].name).c_str());
   }
 }
 

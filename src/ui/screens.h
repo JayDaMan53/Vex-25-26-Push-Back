@@ -46,8 +46,13 @@ typedef struct _objects_t {
     lv_obj_t *robot_battery_value;
     lv_obj_t *imu_calabrated;
     lv_obj_t *robot_imu_value;
-    lv_obj_t *auto_photo;
     lv_obj_t *cat;
+    lv_obj_t *auto_photo;
+    lv_obj_t *dc;
+    lv_obj_t *skills_auto;
+    lv_obj_t *ssgw2;
+    lv_obj_t *sawp;
+    lv_obj_t *ssgw;
 } objects_t;
 
 extern objects_t objects;
@@ -74,6 +79,8 @@ void tick_screen_waiting();
 
 void create_screen_running();
 void tick_screen_running();
+
+void showObject(lv_obj_t *obj);
 
 enum Themes {
     THEME_ID_SKILLS,

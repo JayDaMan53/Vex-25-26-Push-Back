@@ -510,12 +510,8 @@ void diddy() {
   //intake
   intakeMotor.move(127);
 
-  //knock other bot off park zone
-  chassis.pid_drive_set(-10_in, 127, true);
-  chassis.pid_wait();
-
   //drive to match loader
-  chassis.pid_drive_set(46_in, 110, true);
+  chassis.pid_drive_set(35_in, 110, true);
   chassis.pid_wait();
 
   //tongue and move up or sm
@@ -572,11 +568,74 @@ void diddy() {
 
 }
 
+// MARK: Diddy Mirror
+void diddyMirror() {
+  //reset
+  chassis.odom_y_flip(true);
+  chassis.odom_x_flip(true);
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-//
-//skills
-//
+  //intake
+  intakeMotor.move(127);
 
+  //drive to match loader
+  chassis.pid_drive_set(35_in, 110, true);
+  chassis.pid_wait();
+
+  //tongue and move up or sm
+  TonguePiston.set_value(1);
+  ChangeScoreState(true);
+
+  //turn to match loader
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //match load
+  chassis.pid_drive_set(-13.25_in, 80, true);
+  pros::delay(1000);
+  
+  //drive to goal
+  chassis.pid_drive_set(30_in, 60, true);
+  chassis.pid_wait_until(15_in);
+  TonguePiston.set_value(0);
+  chassis.pid_wait();
+
+  //score
+  HoodHook.set_value(false);
+  ScoreMotor.move(127);
+  pros::delay(500); 
+  ScoreMotor.move(-50);
+
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //Turn towards blocks using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::LEFT_SWING, -135_deg, 100);
+  chassis.pid_wait();
+  ChangeScoreState(false);
+
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+  
+  //Drive to the blocks, activating the tongue when close enough
+  chassis.pid_drive_set(-16_in, 127, true);
+  chassis.pid_wait_until(-5_in);
+  TonguePiston.set_value(1);
+  chassis.pid_wait();
+
+  //turn to gulag
+  chassis.pid_turn_set(175_deg, 100);
+  chassis.pid_wait();
+
+  //drive to gulag
+  chassis.pid_drive_set(18_in, 80, true);
+  chassis.pid_wait();
+
+  //score
+  HoodHook.set_value(false);
+  ScoreMotor.move(50);
+  pros::delay(1000); 
+  ScoreMotor.move(-50);
+
+}
 
 // MARK: Diddy Skills
 void diddyskills() {
@@ -783,28 +842,76 @@ void Oblock() {
   pros::delay(1000);
   ScoreMotor.move(-20);
 
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //Turn away from the goal using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::RIGHT_SWING, 135_deg, 100);
+  chassis.pid_wait();
+
+  //Turn to align with the goal
+  chassis.pid_turn_set(5_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //Drive forwards to put the wing into the goal
+  chassis.pid_drive_set(20_in, 127, true);
+  chassis.pid_wait();
+}
+
+//MARK: OBLOCK MIRROR
+
+void OblockMirror() {
+  //reset
   chassis.odom_y_flip(true);
   chassis.odom_x_flip(true);
-  chassis.odom_xyt_set(0_in, 0_in, -90_deg);
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  chassis.pid_drive_set(-10_in, 127, true);
+  //intake
+  intakeMotor.move(127);
+
+  //drive to match loader
+  chassis.pid_drive_set(35, 80, true);
+  chassis.pid_wait();
+
+  //tongue and move up or sm
+  TonguePiston.set_value(true);
+  ChangeScoreState(true);
+
+  //turn to match loader
+  chassis.pid_turn_set(88_deg, TURN_SPEED);
   chassis.pid_wait();
 
   ChangeScoreState(true);
-  intakeMotor.move(-127);
 
-  chassis.pid_turn_set(-45_deg, TURN_SPEED);
+  //match load
+  chassis.pid_drive_set(-13_in, 80, true);
+  pros::delay(1000);
+
+  ChangeScoreState(true);
+  
+  //drive back a bit
+  chassis.pid_drive_set(28_in, 50, true);
   chassis.pid_wait();
+  TonguePiston.set_value(false);
 
   ChangeScoreState(true);
 
-  chassis.pid_drive_set(-17_in, 127, true);
+  HoodHook.set_value(false);
+  ScoreMotor.move(127);
+  pros::delay(1000);
+  ScoreMotor.move(-20);
+
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //Turn away from the goal using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::RIGHT_SWING, 135_deg, 100);
   chassis.pid_wait();
 
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  //Turn to align with the goal
+  chassis.pid_turn_set(5_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(40_in, 127, true);
+  //Drive forwards to put the wing into the goal
+  chassis.pid_drive_set(20_in, 127, true);
   chassis.pid_wait();
 }
 
@@ -819,7 +926,7 @@ void thuckuna() {
   intakeMotor.move(127);
 
   //drive to match loader
-  chassis.pid_drive_set(35_in, 110, true);
+  chassis.pid_drive_set(36_in, 110, true);
   chassis.pid_wait();
 
   //tongue and move up or sm
@@ -827,11 +934,11 @@ void thuckuna() {
   ChangeScoreState(true);
 
   //turn to match loader
-  chassis.pid_turn_set(-86_deg, TURN_SPEED);
+  chassis.pid_turn_set(-88_deg, TURN_SPEED);
   chassis.pid_wait();
 
   //match load
-  chassis.pid_drive_set(-13_in, 80, true);
+  chassis.pid_drive_set(-13.5_in, 80, true);
   pros::delay(1000);
   
   //drive to goal
@@ -875,12 +982,12 @@ void thuckuna() {
   chassis.pid_wait();
   
   //turn to blocks
-  chassis.pid_turn_set(-5_deg, 100);
+  chassis.pid_turn_set(-2_deg, 100);
   chassis.pid_wait();
 
   //drive to blocks
   intakeMotor.move(127);
-  chassis.pid_drive_set(-46_in, 127, true);
+  chassis.pid_drive_set(-45_in, 127, true);
   chassis.pid_wait_until(-39_in);
   TonguePiston.set_value(1);
   chassis.pid_wait();
@@ -898,4 +1005,170 @@ void thuckuna() {
   ScoreMotor.move(0);
   intakeMotor.move(-127);
   ChangeScoreState(true);
+}
+
+// MARK: little saint james
+void littlesaintjames() {
+  //Reset the navigation sensors to 0,0,0 at the start of the auton
+  chassis.odom_y_flip(true);
+  chassis.odom_x_flip(true);
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //Begin intaking and drive backwards towards the match loader at 80/127 speed
+  intakeMotor.move(127);
+  chassis.pid_drive_set(36_in, 110, true);
+  chassis.pid_wait();
+
+  //Activate the tongue and change the scoring state to high goal
+  TonguePiston.set_value(1);
+  ChangeScoreState(true);
+
+  //Turn towards the match loader
+  chassis.pid_turn_set(-88_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //Drive into the match loader at 80/127 speed
+  chassis.pid_drive_set(-13.5_in, 80, true);
+  pros::delay(1000);
+  
+  //Drive backwards into the goal
+  chassis.pid_drive_set(30_in, 60, true);
+  chassis.pid_wait_until(15_in);
+  TonguePiston.set_value(0);
+  chassis.pid_wait();
+
+  //Activate scoring mechanism and hood
+  HoodHook.set_value(false);
+  ScoreMotor.move(127);
+  pros::delay(500); 
+  ScoreMotor.move(-50);
+
+  //Reset the sensors to the new alignment at the goal
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+  
+  //Turn towards blocks using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::RIGHT_SWING, 135_deg, 100);
+  chassis.pid_wait();
+
+  //Drive to the blocks, activating the tongue when close enough
+  chassis.pid_drive_set(-15_in, 127, true);
+  chassis.pid_wait_until(-5_in);
+  TonguePiston.set_value(1);
+  chassis.pid_wait();
+
+  //Drive backwards away from the blocks
+  chassis.pid_drive_set(13_in, 127, true);
+  chassis.pid_wait();
+
+  //Turn backwards towards the goal using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::RIGHT_SWING, 0_deg, 100);
+  chassis.pid_wait();
+
+  //Ensure alignment with the goal by driving backwards
+  chassis.pid_drive_set(5_in, 127, true);
+  chassis.pid_wait();
+
+  //Activate scoring mechanism and hood
+  HoodHook.set_value(false);
+  ScoreMotor.move(127);
+  pros::delay(100);
+  intakeMotor.move(-127);
+  TonguePiston.set_value(0);
+  pros::delay(400); 
+  ScoreMotor.move(-50);
+
+  //Turn away from the goal using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::RIGHT_SWING, 135_deg, 100);
+  chassis.pid_wait();
+
+  //Turn to align with the goal
+  chassis.pid_turn_set(5_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //Drive forwards to put the wing into the goal
+  chassis.pid_drive_set(20_in, 127, true);
+  chassis.pid_wait();
+}
+
+// MARK: little saint james Mirror
+void littlesaintjamesMirror() {
+  //Reset the navigation sensors to 0,0,0 at the start of the auton
+  chassis.odom_y_flip(true);
+  chassis.odom_x_flip(true);
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+
+  //Begin intaking and drive backwards towards the match loader at 80/127 speed
+  intakeMotor.move(127);
+  chassis.pid_drive_set(34.5_in, 110, true);
+  chassis.pid_wait();
+
+  //Activate the tongue and change the scoring state to high goal
+  TonguePiston.set_value(1);
+  ChangeScoreState(true);
+
+  //Turn towards the match loader
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //Drive into the match loader at 80/127 speed
+  chassis.pid_drive_set(-13.5_in, 80, true);
+  pros::delay(1000);
+  
+  //Drive backwards into the goal
+  chassis.pid_drive_set(30_in, 60, true);
+  chassis.pid_wait_until(15_in);
+  TonguePiston.set_value(0);
+  chassis.pid_wait();
+
+  //Activate scoring mechanism and hood
+  HoodHook.set_value(false);
+  ScoreMotor.move(127);
+  pros::delay(500); 
+  ScoreMotor.move(-50);
+
+  //Reset the sensors to the new alignment at the goal
+  chassis.odom_xyt_set(0_in, 0_in, 0_deg);
+  
+  //Turn towards blocks using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::LEFT_SWING, -135_deg, 100);
+  chassis.pid_wait();
+
+  //Drive to the blocks, activating the tongue when close enough
+  chassis.pid_drive_set(-15_in, 127, true);
+  chassis.pid_wait_until(-5_in);
+  TonguePiston.set_value(1);
+  chassis.pid_wait();
+
+  //Drive backwards away from the blocks
+  chassis.pid_drive_set(13_in, 127, true);
+  chassis.pid_wait();
+
+  //Turn backwards towards the goal using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::LEFT_SWING, 0_deg, 100);
+  chassis.pid_wait();
+
+  //Ensure alignment with the goal by driving backwards
+  chassis.pid_drive_set(5_in, 127, true);
+  chassis.pid_wait();
+
+  //Activate scoring mechanism and hood
+  HoodHook.set_value(false);
+  ScoreMotor.move(127);
+  pros::delay(100);
+  intakeMotor.move(-127);
+  TonguePiston.set_value(0);
+  pros::delay(400); 
+  ScoreMotor.move(-50);
+
+  //Turn away from the goal using a swing function at 100/127 speed
+  chassis.pid_swing_set(ez::RIGHT_SWING, 135_deg, 100);
+  chassis.pid_wait();
+
+  //Turn to align with the goal
+  chassis.pid_turn_set(5_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  //Drive forwards to put the wing into the goal
+  chassis.pid_drive_set(20_in, 127, true);
+  chassis.pid_wait();
 }

@@ -4,6 +4,7 @@
 #include "images.h"
 #include "fonts.h"
 #include "actions.h"
+#include "liblvgl/core/lv_obj.h"
 #include "liblvgl/font/lv_font.h"
 #include "liblvgl/lv_conf_internal.h"
 #include "vars.h"
@@ -668,6 +669,10 @@ void create_screen_waiting() {
 void tick_screen_waiting() {
 }
 
+void showObject(lv_obj_t *obj) {
+    lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
+}
+
 void create_screen_running() {
     lv_obj_t *obj = lv_obj_create(0);
     objects.running = obj;
@@ -778,6 +783,59 @@ void create_screen_running() {
                             lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                             lv_img_set_src(obj, &img_auto);
                             lv_img_set_zoom(obj, 255);
+                            {
+                                lv_obj_t *parent_obj = obj;
+                                {
+                                    // DC
+                                    lv_obj_t *obj = lv_img_create(parent_obj);
+                                    objects.dc = obj;
+                                    lv_obj_set_pos(obj, 11, 111);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    // lv_img_set_src(obj, &img_dc);
+                                    lv_img_set_zoom(obj, 255);
+                                    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+                                }
+                                {
+                                    // SkillsAuto
+                                    lv_obj_t *obj = lv_img_create(parent_obj);
+                                    objects.skills_auto = obj;
+                                    lv_obj_set_pos(obj, 3, 92);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    // lv_img_set_src(obj, &img_skills);
+                                    lv_img_set_zoom(obj, 255);
+                                    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+                                }
+                                {
+                                    // SSGW2
+                                    lv_obj_t *obj = lv_img_create(parent_obj);
+                                    objects.ssgw2 = obj;
+                                    lv_obj_set_pos(obj, 10, 110);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    // lv_img_set_src(obj, &img_ssgw2);
+                                    lv_img_set_zoom(obj, 255);
+                                    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+                                }
+                                {
+                                    // SAWP
+                                    lv_obj_t *obj = lv_img_create(parent_obj);
+                                    objects.sawp = obj;
+                                    lv_obj_set_pos(obj, 8, 67);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    // lv_img_set_src(obj, &img_sawp);
+                                    lv_img_set_zoom(obj, 255);
+                                    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+                                }
+                                {
+                                    // SSGW
+                                    lv_obj_t *obj = lv_img_create(parent_obj);
+                                    objects.ssgw = obj;
+                                    lv_obj_set_pos(obj, 10, 110);
+                                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+                                    // lv_img_set_src(obj, &img_ssgw);
+                                    lv_img_set_zoom(obj, 255);
+                                    lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+                                }
+                            }
                         }
                         {
                             // Cat
