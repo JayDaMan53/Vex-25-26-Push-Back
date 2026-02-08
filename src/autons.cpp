@@ -502,66 +502,83 @@ void Skills() {
 
 // MARK: Diddy
 void diddy() {
-  //reset
+  //All movements use skewing for smoother acceleration and deceleration
+
+  //Reset the navigation sensors to 0,0,0 at the start of auton
   chassis.odom_y_flip(true);
   chassis.odom_x_flip(true);
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //intake
+  //Start spinning the intake and intake preload (if used)
   intakeMotor.move(127);
 
-  //drive to match loader
+  //Drive to the match loader at 110/127 speed
   chassis.pid_drive_set(35_in, 110, true);
   chassis.pid_wait();
 
-  //tongue and move up or sm
+  //Activate the tongue and lift storage to the high goal position
   TonguePiston.set_value(1);
   ChangeScoreState(true);
 
-  //turn to match loader
+  //Turn towards the match loader
   chassis.pid_turn_set(-88_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //match load
+  //Drive into the match loader at full speed
   chassis.pid_drive_set(-13.25_in, 80, true);
   pros::delay(1000);
   
-  //drive to goal
+  //Reverse out of the match loader and into the goal
+  //Moves slightly "past" the goal to ensure the aligner works properly
   chassis.pid_drive_set(30_in, 60, true);
   chassis.pid_wait_until(15_in);
+  //Put the tongue up after moving 15 inches (halfway)
   TonguePiston.set_value(0);
   chassis.pid_wait();
 
-  //score
+  //Score in the high goal
+  //Open the hood and lift the wing
   HoodHook.set_value(false);
+  //Activate lever scoring mechanism
   ScoreMotor.move(127);
-  pros::delay(500); 
+  pros::delay(500);
+  //Reset the scoring lever position
   ScoreMotor.move(-20);
 
+  //Reset sensors to start fresh with new alignment
+  //Avoids cumulative inertial error
+  //New relative bearing for more coherent coding
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
   
-  // drive forwards a lil bit
+  //Drive backwards out of the goal and start spinning the intake
   chassis.pid_drive_set(-16_in, 50, true);
   chassis.pid_wait();
   intakeMotor.move(127);
 
+  //Reset sensors to start fresh with new alignment
+  //Sets new theta position to -90 degrees
   chassis.odom_xyt_set(0_in, 0_in, -90_deg);
 
-  //turn to blocks
+  //Turn towards the collection of center blocks
+  //Based on the heading from the new alignment above
   chassis.pid_turn_set(40_deg, 100);
   chassis.pid_wait();
 
-  //drive forwards to block
+  //Drive forwards to the center of the field to collect blocks
   chassis.pid_drive_set(-34_in, 80, true);
+  //After 28 inches, put down the tongue to trap and collect unintook blocks
   chassis.pid_wait_until(-28_in);
   TonguePiston.set_value(1);
   chassis.pid_wait();
 
-  //drive forwards to gulag
+  //Drive forwards into the lower goal
   chassis.pid_drive_set(-15_in, 127, true);
+  //Put the tongue up to let the blocks outtake freely
   TonguePiston.set_value(0);
   chassis.pid_wait();
+  //Outtake to score collected blocks
   intakeMotor.move(-127);
+  //Shake the bot to outtake stuck blocks
   chassis.pid_drive_set(1_in, 127, true);
   chassis.pid_wait();
   chassis.pid_drive_set(-2_in, 127, true);
@@ -570,230 +587,259 @@ void diddy() {
 
 // MARK: Diddy Mirror
 void diddyMirror() {
-  //reset
+  //All movements use skewing for smoother acceleration and deceleration
+
+  //Reset the navigation sensors to 0,0,0 at the start of auton
   chassis.odom_y_flip(true);
   chassis.odom_x_flip(true);
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //intake
+  //Start spinning the intake and intake preload (if used)
   intakeMotor.move(127);
 
-  //drive to match loader
+  //Drive to the match loader at 110/127 speed
   chassis.pid_drive_set(35_in, 110, true);
   chassis.pid_wait();
 
-  //tongue and move up or sm
+  //Activate the tongue and lift storage to the high goal position
   TonguePiston.set_value(1);
   ChangeScoreState(true);
 
-  //turn to match loader
+  //Turn towards the match loader
   chassis.pid_turn_set(90_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //match load
+  //Drive into the match loader at full speed
   chassis.pid_drive_set(-13.25_in, 80, true);
   pros::delay(1000);
   
-  //drive to goal
+  //Reverse out of the match loader and into the goal
+  //Moves slightly "past" the goal to ensure the aligner works properly
   chassis.pid_drive_set(30_in, 60, true);
+  //Put the tongue up after moving 15 inches (halfway)
   chassis.pid_wait_until(15_in);
   TonguePiston.set_value(0);
   chassis.pid_wait();
 
-  //score
+  //Score in the high goal
+  //Open the hood and lift the wing
   HoodHook.set_value(false);
+  //Activate lever scoring mechanism
   ScoreMotor.move(127);
-  pros::delay(500); 
+  pros::delay(500);
+  //Reset the scoring lever position
   ScoreMotor.move(-50);
 
+  //Reset sensors to start fresh with new alignment
+  //Avoids cumulative inertial error
+  //New relative bearing for more coherent coding
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //Turn towards blocks using a swing function at 100/127 speed
+  //Turn towards the blocks using a swing function at 100/127 speed
   chassis.pid_swing_set(ez::LEFT_SWING, -135_deg, 100);
   chassis.pid_wait();
   ChangeScoreState(false);
 
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
   
-  //Drive to the blocks, activating the tongue when close enough
+  //Drive to the center field blocks
   chassis.pid_drive_set(-16_in, 127, true);
+  //Activate the tongue after moving 5 inches to trap any unintook blocks
   chassis.pid_wait_until(-5_in);
   TonguePiston.set_value(1);
   chassis.pid_wait();
 
-  //turn to gulag
+  //turn to the center goal
   chassis.pid_turn_set(175_deg, 100);
   chassis.pid_wait();
 
-  //drive to gulag
+  //Drive to the center goal
   chassis.pid_drive_set(18_in, 80, true);
   chassis.pid_wait();
 
-  //score
+  //Activate the scoring mechanism at a reduced speed
+  //Prevents blocks from overshooting the goal and falling out
   HoodHook.set_value(false);
   ScoreMotor.move(50);
   pros::delay(1000); 
+  //Reset scoring lever position
   ScoreMotor.move(-50);
 
 }
 
 // MARK: Diddy Skills
 void diddyskills() {
-  //reset
+  //All movements use skewing for smoother acceleration and deceleration
+
+  //Reset the navigation sensors to 0,0,0 at the start of auton
   chassis.odom_y_flip(true);
   chassis.odom_x_flip(true);
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //intake
+  //Start spinning the intake
   intakeMotor.move(127);
 
-  //drive to match loader
+  //Drive to the match loader at 80/127 speed
   chassis.pid_drive_set(34.5_in, 80, true);
   chassis.pid_wait();
 
-  //tongue and move up or sm
+  //Activate the tongue and lift storage to the high goal position
   TonguePiston.set_value(true);
   ChangeScoreState(true);
 
-  //turn to match loader
+  //Turn towards the match loader
   chassis.pid_turn_set(-90_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //match load
+  //Drive into the match loader at 50/127 speed
   chassis.pid_drive_set(-12.375_in, 50, true);
   chassis.pid_wait();
   pros::delay(2000); 
   
-  //drive back a bit
+  //Drive backwards out of the match loader
   chassis.pid_drive_set(10_in, 127, true);
   chassis.pid_wait();
+  //Lift the tongue mechanism once out
   TonguePiston.set_value(false);
   pros::delay(100);
 
-  //turn
+  //Turn to face perpendicular to the perimeter
   chassis.pid_turn_set(0_deg, 70);
   chassis.pid_wait();
 
-  //drib to wall
+  //Drive into the perimeter wall for accurate alignment
   chassis.pid_drive_set(30, 127, true);
   chassis.pid_wait();
 
-  //reset
+  //Reset sensors to start fresh with new alignment
+  //Avoids cumulative error and inertial error from hitting the wall
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //scooch forwards
+  //Move forward off the wall a small amount for unobstructed turning
   chassis.pid_drive_set(-1, 127, true);
   chassis.pid_wait();
 
-  //turn
+  //Turn parallel to the perimeter
   chassis.pid_turn_set(-90_deg, 70);
   chassis.pid_wait();
 
-  //drib past goal
+  //Drive past goal to the other side
   chassis.pid_drive_set(90, 127, true);
   chassis.pid_wait();
 
-  //turn
+  //Turn perpendicular to the perimeter
+  //0 degree refers to facing opposite the perimeter wall as a result of the earlier bearing reset
   chassis.pid_turn_set(0_deg, 70);
   chassis.pid_wait();
   
-  //drib to wall
+  //Align along the perimeter by reversing into the wall again
   chassis.pid_drive_set(30, 127, true);
   chassis.pid_wait();
 
-  //reset
+  //Reset sensors to start fresh with new alignment
+  //Avoids cumulative odom error and inertial error from hitting the wall
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //scooch forwards
+  //Move forward off the wall to align with the goal
   chassis.pid_drive_set(-15, 127, true);
   chassis.pid_wait();
 
-  //turn
+  //Turn to face the goal
   chassis.pid_turn_set(90_deg, 70);
   chassis.pid_wait();
 
-  //drive into goal
+  //Drive into the goal
+  //Moves slightly past the goal to ensure the aligner works properly
   chassis.pid_drive_set(15, 127, true);
   chassis.pid_wait();
   
-  //score
+  //Activate lever scoring mechanism
   HoodHook.set_value(false);
   ScoreMotor.move(127);
   pros::delay(1000);
+  //Return lever and hood to initial position with a series of delays for sequencing
   ScoreMotor.move(-127);
-  pros::delay(2000); 
+  pros::delay(2000);  
   HoodHook.set_value(true);
 
-  //match load
+  //Put down the tongue to prepare for match loading
   TonguePiston.set_value(true);
+  //Turn to face the match loader
   chassis.pid_turn_set(86_deg, TURN_SPEED);
   chassis.pid_wait();
+  //Drive to the match loader
+  //Small drive adjustments tuned over time for consistency
   chassis.pid_drive_set(-4, 50, true);
   chassis.pid_wait();
   chassis.pid_drive_set(-25.5, 50, true);
   chassis.pid_wait();
+  //Wait for game pieces to be loaded
   pros::delay(2000); 
   
-  //pull out
+  //Reverse out of the match loader and into the goal
   chassis.pid_drive_set(4, 50, true);
   chassis.pid_wait();
+  //Put the  tongue up after moving out
   TonguePiston.set_value(false);
   chassis.pid_drive_set(24, 50, true);
   chassis.pid_wait();
 
-  //score
+  //Activate lever scoring mechanism and hood
   HoodHook.set_value(false);
   ScoreMotor.move(127);
+  //Wait, then return lever and hood to initial position
   pros::delay(5000);
   HoodHook.set_value(true);
   ScoreMotor.move(0);
 
-  // scooch forwards
+  //Move forwards out of the goal
   chassis.pid_drive_set(-10, 50, true);
   chassis.pid_wait();
 
-  //turn
+  //Turn perpendicular to the perimeter wall
   chassis.pid_turn_set(0_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //drib to wall
+  //Drive into the wall for accurate alignment
   chassis.pid_drive_set(30, 127, true);
   chassis.pid_wait();
 
-  //reset
+  //Reset sensors to start fresh with new alignment
+  //Avoids cumulative odom error and inertial error from hitting the wall
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  // scooch forwards
+  //Move forward off the wall a small amount for unobstructed turning
   chassis.pid_drive_set(-5, 50, true);
   chassis.pid_wait();
 
-  //turn
+  //Turn to be parallel to the long goal
   chassis.pid_turn_set(-90_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //drib past goal
+  //Drive past the long goal to the other side
   chassis.pid_drive_set(-90_in, 127, true);
   chassis.pid_wait();
 
-  //turn
+  //Turn to point towards the rear corner of the park zone
   chassis.pid_turn_set(160_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //drib to park
+  //Drive into the perimeter wall just before the park zone
   chassis.pid_drive_set(50_in, 127, true);
   chassis.pid_wait();
 
-  //turn
+  //Turn along the wall to face the park zone
   chassis.pid_turn_set(180_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //drib to park
+  //First drive attempt into the park zone at full force
+  //Also serves to clear the game pieces out of the park zone for unobstructed parking
   chassis.pid_drive_set(20_in, 127, true);
   chassis.pid_wait();
-  //drib to park
+  //Reverse for second attempt
   chassis.pid_drive_set(-20_in, 127, true);
   chassis.pid_wait();
-  //drib to park
+  //Final drive into the park zone at full force
   chassis.pid_drive_set(48_in, 127, true);
   chassis.pid_wait();
 
@@ -802,57 +848,70 @@ void diddyskills() {
 //MARK: OBLOCK
 
 void Oblock() {
-  //reset
+  //All movements use skewing for smoother acceleration and deceleration
+
+  //Reset the navigation sensors to 0,0,0 at the start of auton
   chassis.odom_y_flip(true);
   chassis.odom_x_flip(true);
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //intake
+  //Start spinning the intake and intake preload (if used)
   intakeMotor.move(127);
 
-  //drive to match loader
+  //Drive to the match loader at 80/127 speed
   chassis.pid_drive_set(35, 80, true);
   chassis.pid_wait();
 
-  //tongue and move up or sm
+  //Activate the tongue and lift storage to the high goal position
   TonguePiston.set_value(true);
   ChangeScoreState(true);
 
-  //turn to match loader
+  //Turn towards the match loader
   chassis.pid_turn_set(-86_deg, TURN_SPEED);
   chassis.pid_wait();
 
+  //Persist the raised storage state for scoring high goal
   ChangeScoreState(true);
 
-  //match load
+  //Drive into the match loader
+  //Intake is already spinning from before
   chassis.pid_drive_set(-13_in, 80, true);
   pros::delay(1000);
 
+  //Persist the raised storage state for scoring high goal
   ChangeScoreState(true);
   
-  //drive back a bit
+  //Drive backwards out of the match loader and into the goal
+  //Moves slightly "past" the goal to ensure the aligner works properly
   chassis.pid_drive_set(28_in, 50, true);
   chassis.pid_wait();
+  //Put the tongue up after moving out of the match loader
   TonguePiston.set_value(false);
 
+  //Persist the raised storage state for scoring high goal
   ChangeScoreState(true);
 
+  //Activate lever scoring mechanism and open the hood
   HoodHook.set_value(false);
   ScoreMotor.move(127);
+  //Reset lever position after blocks are scored
   pros::delay(1000);
   ScoreMotor.move(-20);
 
+  //Reset sensors to start fresh with new alignment
+  //Avoids cumulative inertial error
+  //New relative bearing for more coherent coding
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
   //Turn away from the goal using a swing function at 100/127 speed
   chassis.pid_swing_set(ez::RIGHT_SWING, 135_deg, 100);
   chassis.pid_wait();
 
-  //Turn to align with the goal
+  //Turn parallel to the goal, aliging wing with the high goal
   chassis.pid_turn_set(5_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //Drive forwards to put the wing into the goal
+  //Drive forwards into the high goal at full speed to wing the blocks in
   chassis.pid_drive_set(20_in, 127, true);
   chassis.pid_wait();
 }
@@ -860,46 +919,59 @@ void Oblock() {
 //MARK: OBLOCK MIRROR
 
 void OblockMirror() {
-  //reset
+  //All movements use skewing for smoother acceleration and deceleration
+
+  //Reset the navigation sensors to 0,0,0 at the start of auton
   chassis.odom_y_flip(true);
   chassis.odom_x_flip(true);
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //intake
+  //Start spinning the intake and intake preload (if used)
   intakeMotor.move(127);
 
-  //drive to match loader
+  //Drive to the match loader at 80/127 speed
   chassis.pid_drive_set(35, 80, true);
   chassis.pid_wait();
 
-  //tongue and move up or sm
+   //Activate the tongue and lift storage to the high goal position
   TonguePiston.set_value(true);
   ChangeScoreState(true);
 
-  //turn to match loader
+  //Turn towards the match loader
   chassis.pid_turn_set(88_deg, TURN_SPEED);
   chassis.pid_wait();
 
+  //Persist the raised storage state for scoring high goal
   ChangeScoreState(true);
 
-  //match load
+  //Drive into the match loader
+  //Intake is already spinning from before
   chassis.pid_drive_set(-13_in, 80, true);
   pros::delay(1000);
 
+  //Persist the raised storage state for scoring high goal
   ChangeScoreState(true);
   
-  //drive back a bit
+  //Drive backwards out of the match loader and into the goal
+  //Moves slightly "past" the goal to ensure the aligner works properly
   chassis.pid_drive_set(28_in, 50, true);
   chassis.pid_wait();
+  //Put the tongue up after moving out of the match loader
   TonguePiston.set_value(false);
 
+  //Persist the raised storage state for scoring high goal
   ChangeScoreState(true);
 
+  //Activate lever scoring mechanism and open the hood
   HoodHook.set_value(false);
   ScoreMotor.move(127);
+  //Reset lever position after blocks are scored
   pros::delay(1000);
   ScoreMotor.move(-20);
 
+  //Reset sensors to start fresh with new alignment
+  //Avoids cumulative inertial error
+  //New relative bearing for more coherent coding
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
   //Turn away from the goal using a swing function at 100/127 speed
@@ -917,91 +989,106 @@ void OblockMirror() {
 
 // MARK: thuckuna
 void thuckuna() {
-  //reset
+  //All movements use skewing for smoother acceleration and deceleration
+
+  //Reset the navigation sensors to 0,0,0 at the start of auton
   chassis.odom_y_flip(true);
   chassis.odom_x_flip(true);
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
 
-  //intake
+  //Start spinning the intake and intake preload (if used)
   intakeMotor.move(127);
 
-  //drive to match loader
+  //Drive to the match loader at 110/127 speed
   chassis.pid_drive_set(36_in, 110, true);
   chassis.pid_wait();
 
-  //tongue and move up or sm
+  //Activate the tongue and prepare the scoring mechanism
   TonguePiston.set_value(1);
   ChangeScoreState(true);
 
-  //turn to match loader
+  //Turn towards the match loader
   chassis.pid_turn_set(-88_deg, TURN_SPEED);
   chassis.pid_wait();
 
-  //match load
+  //Drive into the match loader at 80/127 speed
   chassis.pid_drive_set(-13.5_in, 80, true);
   pros::delay(1000);
   
-  //drive to goal
+  //Drive to the goal with small tuning adjustments
   chassis.pid_drive_set(5_in, 127, true);
   chassis.pid_wait();
   chassis.pid_drive_set(25_in, 127, true);
   chassis.pid_wait_until(20_in);
+
+  //After 20 inches, activate the scoring mechanism
   ScoreMotor.move(127);
-  intakeMotor.move(0);
   HoodHook.set_value(false);
+  //stop the inktake to prevent under-lever jams
+  intakeMotor.move(0);
+  
+  //Store the tongue, reset the scoring motor, and outtake any jams
   TonguePiston.set_value(0);
   chassis.pid_wait();
   pros::delay(500);
   ScoreMotor.move(-50);
   intakeMotor.move(-127);
 
-  //reset
+  //Reset sensors to start fresh with the new alignment
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);
   pros::delay(250);
   
-  // drive forwards a lil bit
+  //Reverse out of the goal and start spinning the intake
   chassis.pid_drive_set(-15_in, 100, true);
   chassis.pid_wait();
   intakeMotor.move(127);
 
+  //New alignment and relative bearing for simpler navigation
   chassis.odom_xyt_set(0_in, 0_in, -90_deg);
 
-  //turn to blocks
+  //Turn towards the collection of center blocks
+  //Based on the heading from the new alignment above
   chassis.pid_turn_set(40_deg, 80);
   chassis.pid_wait();
 
-  //drive forwards to block
+  //Drive forwards to the center goal and to collect blocks
   chassis.pid_drive_set(-51_in, 80, true);
+  //After 44 inches, stop intaking and score into the lower goal
   chassis.pid_wait_until(-44_in);
   intakeMotor.move(-127);
   chassis.pid_wait();
+  //Wait for game pieces to score
   pros::delay(250);
 
-  //back up from gulag
+  ///Reverse out of the lower goal
   chassis.pid_drive_set(16_in, 127, true);
   chassis.pid_wait();
   
-  //turn to blocks
+  //Turn to face the second center block collection
   chassis.pid_turn_set(-2_deg, 100);
   chassis.pid_wait();
 
-  //drive to blocks
+  //Drive to the blocks and intake them
   intakeMotor.move(127);
   chassis.pid_drive_set(-45_in, 127, true);
   chassis.pid_wait_until(-39_in);
+  //Put down the tongue to help collect any unintook blocks
   TonguePiston.set_value(1);
   chassis.pid_wait();
 
-  //turn to gulag
+  //Turn to face the middle goal and lower storage position
   ChangeScoreState(false);
   chassis.pid_turn_set(-45_deg, 100);
   chassis.pid_wait();
-  //drive forwards to gulag
+  
+  //Drive to the middle goal and score collected blocks
   chassis.pid_drive_set(17_in, 127, true);
   HoodHook.set_value(false);
+  //Scoring uses a slower speed to prevent overshooting
   ScoreMotor.move(50);
   chassis.pid_wait();
   pros::delay(250);
+  //Reset scoring mechanism and outtake any jams
   ScoreMotor.move(0);
   intakeMotor.move(-127);
   ChangeScoreState(true);
