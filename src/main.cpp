@@ -405,7 +405,9 @@ void opcontrol() {
     if (GetKey(Keybinds["Intake"])) {
         intakeMotor.move(127);
     } else if (GetKey(Keybinds["Outtake"])) {
-        intakeMotor.move(-127);
+      	//CHANGE THIS TO SLOW OUTTAKE FOR DOUBLE PARK
+		//Matthew asked for this. We can tune the speed later.
+        intakeMotor.move(-90);
     } else {
         intakeMotor.move(0);
     }
