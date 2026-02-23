@@ -5,6 +5,7 @@
 #include <string>
 #include <type_traits>
 
+#include "autons.hpp"
 #include "liblvgl/core/lv_obj.h"
 #include "liblvgl/widgets/lv_label.h"
 #include "main.h"
@@ -36,28 +37,28 @@ struct AutonOption {
 
 AutonOption AutonOptions[] = {
   // 7 Block Autons
-  {"Red Left - 7 Block", RedLeft, objects.ssgw2}, // 1 0 0
-  {"Red Right - 7 Block", RedRight, objects.ssgw2}, // 1 1 0
-  {"Blue Left - 7 Block", BlueLeft, objects.ssgw2}, // 2 0 0
-  {"Blue Right - 7 Block", BlueRight, objects.ssgw2}, // 2 1 0
+  {"Red Left - 7 Block", littlesaintjamesMirror, objects.ssgw2}, // 1 0 0
+  {"Red Right - 7 Block", littlesaintjames, objects.ssgw2}, // 1 1 0
+  {"Blue Left - 7 Block", littlesaintjamesMirror, objects.ssgw2}, // 2 0 0
+  {"Blue Right - 7 Block", littlesaintjames, objects.ssgw2}, // 2 1 0
 
   // 4 Block Autons
-  {"Red Left - 4 Block", NULL, objects.ssgw}, // 1 0 1
-  {"Red Right - 4 Block", NULL, objects.ssgw}, // 1 1 1
-  {"Blue Left - 4 Block", NULL, objects.ssgw}, // 2 0 1
-  {"Blue Right - 4 Block", NULL, objects.ssgw}, // 2 1 1
+  {"Red Left - 4 Block", OblockMirror, objects.ssgw}, // 1 0 1
+  {"Red Right - 4 Block", Oblock, objects.ssgw}, // 1 1 1
+  {"Blue Left - 4 Block", OblockMirror, objects.ssgw}, // 2 0 1
+  {"Blue Right - 4 Block", Oblock, objects.ssgw}, // 2 1 1
 
   // 2 Goal 7 Block Auton
-  {"2 Goal 7 Block", NULL, objects.dc}, // any any 3
+  {"2 Goal 7 Block", diddy, objects.dc}, // any any 3
 
   // SAWP
-  {"Solo Auto Win Point", NULL, objects.sawp}, // any any 4
+  {"Solo Auto Win Point", thuckuna, objects.sawp}, // any any 4
 
   // // Do nothing Auton
   {"Do Nothing - 0 Block", NULL}, // any any 2
 
   // // Skills Auton
-  {"Skills Auto", NULL, objects.skills_auto} // 0 skip skip
+  {"Skills Auto", israel, objects.skills_auto} // 0 skip skip
 };
 
 void RunningTick() {
