@@ -48,17 +48,18 @@ AutonOption AutonOptions[] = {
   {"Blue Left - 4 Block", OblockMirror, objects.ssgw}, // 2 0 1
   {"Blue Right - 4 Block", Oblock, objects.ssgw}, // 2 1 1
 
-  // 2 Goal 7 Block Auton
-  {"2 Goal 7 Block", diddy, objects.dc}, // any any 3
+  // 2 Goal 7 Block Autons
+  {"Red 2 Goal - 7 Block", diddy, objects.dc}, // any any 3
+  {"Blue 2 Goal - 7 Block", diddyMirror, objects.dc}, // any any 3
 
   // SAWP
   {"Solo Auto Win Point", thuckuna, objects.sawp}, // any any 4
 
   // // Do nothing Auton
-  {"Do Nothing - 0 Block", donothing}, // any any 2
+  {"Do Nothing - 0 Block", DoNothing}, // any any 2
 
   // // Skills Auton
-  {"Skills Auto", ihatemyself, objects.skills_auto} // 0 skip skip
+  {"Skills Auto", diddyskills, objects.skills_auto} // 0 skip skip
 };
 
 void RunningTick() {
@@ -74,7 +75,7 @@ void GetSelected() {
 
   // Skills overrides everything
   if (TeamColor == 0) {
-    autoIndex = 11; // "Skills Auto"
+    autoIndex = 12; // "Skills Auto"
   } else {
     switch (AutonType) {
       case 0: { // 7 Block
@@ -92,19 +93,20 @@ void GetSelected() {
       }
 
       case 2: // 0 Block (Do Nothing)
-        autoIndex = 10;
+        autoIndex = 11;
         break;
 
-      case 3: // 2 Goal 7 Block (any color/side)
-        autoIndex = 8;
+      case 3: { // 2 Goal 7 Block (choose by color)
+        autoIndex = (TeamColor == 1) ? 8 : 9;
         break;
+      }
 
       case 4: // SAWP (any color/side)
-        autoIndex = 9;
+        autoIndex = 10;
         break;
 
       default:
-        autoIndex = 10;
+        autoIndex = 11;
         break;
     }
   }
