@@ -186,10 +186,18 @@ void autonomous() {
   // lv_disp_load_scr(screen);
   // lv_scr_load_anim(screen, LV_SCR_LOAD_ANIM_FADE_IN, 200, 0, false);
 
-  diddyskills();
+  // diddyskills();
   // Oblock();
   // test();
   // RedLeft();
+  // diddy();
+  // gay();
+  // israel();
+  // drive_example();
+  // shutupmom();
+  // ihatemyself();
+
+  RunSelected();
 
   // RedLeft(false);
   // PureTest();
@@ -314,7 +322,7 @@ void Score(void* State = (void*) scoreStateUp) {
     runningScore = true;
     ChangeScoreState(State);
     ChangeHookState(false);
-    ScoreMotor.move_relative(1180, State ? 100 : 50);
+    ScoreMotor.move_relative(1180, State ? 100 : 25);
     // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
     pros::delay(200);
     while (ScoreMotor.get_actual_velocity() != 0) {
@@ -332,6 +340,7 @@ void Score(void* State = (void*) scoreStateUp) {
     ScoreMotor.brake();
     // printf("Score Motor Pos: %f\n", ScoreMotor.get_actual_velocity());
     runningScore = false;
+    HoodHook.set_value(true);
 }
 
 /**

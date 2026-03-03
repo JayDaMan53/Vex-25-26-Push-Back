@@ -55,10 +55,10 @@ AutonOption AutonOptions[] = {
   {"Solo Auto Win Point", thuckuna, objects.sawp}, // any any 4
 
   // // Do nothing Auton
-  {"Do Nothing - 0 Block", NULL}, // any any 2
+  {"Do Nothing - 0 Block", donothing}, // any any 2
 
   // // Skills Auton
-  {"Skills Auto", israel, objects.skills_auto} // 0 skip skip
+  {"Skills Auto", ihatemyself, objects.skills_auto} // 0 skip skip
 };
 
 void RunningTick() {
