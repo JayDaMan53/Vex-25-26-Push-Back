@@ -41,13 +41,15 @@ void PureTest();
 
 
 void test();
-void Skills();
 void diddy();
-void diddyskills();
-void diddyskillsfinal();
 void Oblock();
 void OblockMirror();
 void thuckuna();
 void littlesaintjames();
 void littlesaintjamesMirror();
 void diddyMirror();
+void gay();
+void israel();
+void shutupmom();
+void ihatemyself();
+void donothing();
