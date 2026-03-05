@@ -50,16 +50,16 @@ AutonOption AutonOptions[] = {
 
   // 2 Goal 7 Block Autons (Right/Left)
   {"Right 2 Goal - 7 Block", diddy, objects.dc}, // right (was Red)
-  {"Left 2 Goal - 7 Block", diddyMirror, objects.dc}, // left (was Blue)
+  {"Left 2 Goal - 7 Block", shutupmom, objects.dc}, // left (was Blue)
 
   // SAWP
-  {"Solo Auto Win Point", thuckuna, objects.sawp}, // any any 4
+  {"Solo Auto Win Point", gay, objects.sawp}, // any any 4
 
   // // Do nothing Auton
-  {"Do Nothing - 0 Block", DoNothing}, // any any 2
+  {"Do Nothing - 0 Block", donothing}, // any any 2
 
   // // Skills Auton
-  {"Skills Auto", diddyskills, objects.skills_auto} // 0 skip skip
+  {"Skills Auto", israel, objects.skills_auto} // 0 skip skip
 };
 
 void RunningTick() {
