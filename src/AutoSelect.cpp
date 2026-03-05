@@ -48,9 +48,9 @@ AutonOption AutonOptions[] = {
   {"Blue Left - 4 Block", OblockMirror, objects.ssgw}, // 2 0 1
   {"Blue Right - 4 Block", Oblock, objects.ssgw}, // 2 1 1
 
-  // 2 Goal 7 Block Autons
-  {"Red 2 Goal - 7 Block", diddy, objects.dc}, // any any 3
-  {"Blue 2 Goal - 7 Block", diddyMirror, objects.dc}, // any any 3
+  // 2 Goal 7 Block Autons (Right/Left)
+  {"Right 2 Goal - 7 Block", diddy, objects.dc}, // right (was Red)
+  {"Left 2 Goal - 7 Block", diddyMirror, objects.dc}, // left (was Blue)
 
   // SAWP
   {"Solo Auto Win Point", thuckuna, objects.sawp}, // any any 4
@@ -96,8 +96,9 @@ void GetSelected() {
         autoIndex = 11;
         break;
 
-      case 3: { // 2 Goal 7 Block (choose by color)
-        autoIndex = (TeamColor == 1) ? 8 : 9;
+      case 3: { // 2 Goal 7 Block (choose by field side: Right/Left)
+        // TeamSide: 0 = Left, 1 = Right
+        autoIndex = (TeamSide == 1) ? 8 : 9;
         break;
       }
 
